@@ -1,6 +1,6 @@
-import 'dart:io';
+import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:intl/intl.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import '../features/finance/data/models/expense_model.dart';
 
@@ -49,13 +49,15 @@ class CsvExportService {
     });
     buffer.writeln('Grand Total,${grandTotal.toStringAsFixed(2)}');
 
-    // Save and Share
-    final tempDir = await getTemporaryDirectory();
-    final file = File('${tempDir.path}/expenses_$monthStr.csv');
-    await file.writeAsString(buffer.toString());
+    final bytes = Uint8List.fromList(utf8.encode(buffer.toString()));
+    final xFile = XFile.fromData(
+      bytes,
+      name: 'expenses_$monthStr.csv',
+      mimeType: 'text/csv',
+    );
 
     await Share.shareXFiles(
-      [XFile(file.path)],
+      [xFile],
       subject: 'Expenses for $monthStr',
     );
   }

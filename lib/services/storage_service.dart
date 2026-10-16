@@ -1,7 +1,7 @@
 import 'dart:convert';
-import 'dart:io';
+import 'dart:io' show File;
 import 'package:file_picker/file_picker.dart';
-import 'package:path_provider/path_provider.dart';
+import 'package:flutter/foundation.dart';
 import 'package:share_plus/share_plus.dart';
 import '../core/constants/app_constants.dart';
 import '../core/di/injection.dart';
@@ -127,12 +127,15 @@ class StorageService {
 
   Future<void> shareBackupFile() async {
     final jsonString = await exportBackupJson();
-    final tempDir = await getTemporaryDirectory();
-    final file = File('${tempDir.path}/life_os_backup_${DateTime.now().millisecondsSinceEpoch}.json');
-    await file.writeAsString(jsonString);
+    final bytes = Uint8List.fromList(utf8.encode(jsonString));
+    final xFile = XFile.fromData(
+      bytes,
+      name: 'life_os_backup_${DateTime.now().millisecondsSinceEpoch}.json',
+      mimeType: 'application/json',
+    );
 
     await Share.shareXFiles(
-      [XFile(file.path)],
+      [xFile],
       subject: 'Life OS Backup',
     );
   }
@@ -141,13 +144,22 @@ class StorageService {
     final result = await FilePicker.platform.pickFiles(
       type: FileType.custom,
       allowedExtensions: ['json'],
+      withData: true,
     );
 
-    if (result != null && result.files.single.path != null) {
-      final file = File(result.files.single.path!);
-      final content = await file.readAsString();
-      await importBackupJson(content);
-      return true;
+    if (result != null && result.files.isNotEmpty) {
+      final file = result.files.single;
+      String? content;
+      if (file.bytes != null) {
+        content = utf8.decode(file.bytes!);
+      } else if (!kIsWeb && file.path != null) {
+        final ioFile = File(file.path!);
+        content = await ioFile.readAsString();
+      }
+      if (content != null) {
+        await importBackupJson(content);
+        return true;
+      }
     }
     return false;
   }
