@@ -45,5 +45,21 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<key>NSFaceIDUsageDescription</key>
+	<string>Life OS requires biometric authentication to secure your private Fiancée Hub and Gift Vault.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Life OS requires access to your photos to select custom background images.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>Life OS requires camera access to capture images for your habits and backgrounds.</string>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>fetch</string>
+		<string>remote-notification</string>
+	</array>
+	<key>CFBundleLocalizations</key>
+	<array>
+		<string>en</string>
+		<string>ar</string>
+	</array>
 </dict>
 </plist>
