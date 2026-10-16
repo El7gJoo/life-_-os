@@ -1,0 +1,39 @@
+workflows:
+  ios-release-unsigned:
+    name: Build Unsigned iOS IPA
+    instance_type: mac_mini_m2
+    max_build_duration: 60
+    environment:
+      flutter: 3.38.9
+      xcode: latest
+      cocoapods: default
+    scripts:
+      - name: Set up Flutter dependencies
+        script: |
+          flutter packages pub get
+      - name: Generate Localizations
+        script: |
+          flutter gen-l10n
+      - name: Run Static Analysis & Tests
+        script: |
+          flutter analyze
+          flutter test --no-pub
+      - name: Build Unsigned iOS Release
+        script: |
+          flutter build ios --release --no-codesign
+      - name: Package Payload into Unsigned IPA
+        script: |
+          mkdir -p Payload
+          cp -r build/ios/iphoneos/Runner.app Payload/
+          zip -qr app.ipa Payload
+          rm -rf Payload
+    artifacts:
+      - app.ipa
+      - build/ios/iphoneos/Runner.app
+    publishing:
+      email:
+        recipients:
+          - developer@example.com
+        notify:
+          failure: true
+          success: true
