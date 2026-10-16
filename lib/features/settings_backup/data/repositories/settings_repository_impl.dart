@@ -114,6 +114,52 @@ class SettingsRepositoryImpl implements SettingsRepository {
       _box.put(AppConstants.lastRolloverKey, date.toIso8601String());
 
   @override
+  int getCommuteMinutes() {
+    return _box.get(AppConstants.lastCommuteKey) as int? ?? 45;
+  }
+
+  @override
+  Future<void> setCommuteMinutes(int minutes) =>
+      _box.put(AppConstants.lastCommuteKey, minutes);
+
+  @override
+  String? getGeminiApiKey() => _box.get(AppConstants.geminiApiKey) as String?;
+
+  @override
+  Future<void> setGeminiApiKey(String? key) =>
+      _box.put(AppConstants.geminiApiKey, key);
+
+  @override
+  bool isRequireProofEnabled() =>
+      _box.get(AppConstants.requireProofKey) as bool? ?? true;
+
+  @override
+  Future<void> setRequireProofEnabled(bool value) =>
+      _box.put(AppConstants.requireProofKey, value);
+
+  @override
+  double? getUniversityLatitude() =>
+      _box.get(AppConstants.universityLatKey) as double?;
+
+  @override
+  double? getUniversityLongitude() =>
+      _box.get(AppConstants.universityLngKey) as double?;
+
+  @override
+  Future<void> setUniversityLocation(double lat, double lng) async {
+    await _box.put(AppConstants.universityLatKey, lat);
+    await _box.put(AppConstants.universityLngKey, lng);
+  }
+
+  @override
+  int getUniversityRadius() =>
+      _box.get(AppConstants.universityRadiusKey) as int? ?? AppConstants.defaultUniversityRadius;
+
+  @override
+  Future<void> setUniversityRadius(int meters) =>
+      _box.put(AppConstants.universityRadiusKey, meters);
+
+  @override
   Map<String, dynamic> exportAll() => Map<String, dynamic>.from(_box.toMap().map(
     (k, v) => MapEntry(k.toString(), v),
   ));

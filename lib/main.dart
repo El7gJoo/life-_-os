@@ -45,6 +45,12 @@ Future<void> main() async {
     Hive.openBox(AppConstants.ledgerBox),
     Hive.openBox(AppConstants.rewardsBox),
     Hive.openBox(AppConstants.claimedRewardsBox),
+    Hive.openBox(AppConstants.subjectsBox),
+    Hive.openBox(AppConstants.timetableBox),
+    Hive.openBox(AppConstants.attendanceBox),
+    Hive.openBox(AppConstants.studyLogsBox),
+    Hive.openBox(AppConstants.proofLogsBox),
+    Hive.openBox(AppConstants.pendingProofBox),
   ]);
 
   // Setup DI

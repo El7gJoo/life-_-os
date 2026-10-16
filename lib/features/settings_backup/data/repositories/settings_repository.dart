@@ -25,6 +25,17 @@ abstract class SettingsRepository {
   Future<void> setLastBackupDate(DateTime date);
   DateTime? getLastRolloverDate();
   Future<void> setLastRolloverDate(DateTime date);
+  int getCommuteMinutes();
+  Future<void> setCommuteMinutes(int minutes);
+  String? getGeminiApiKey();
+  Future<void> setGeminiApiKey(String? key);
+  bool isRequireProofEnabled();
+  Future<void> setRequireProofEnabled(bool value);
+  double? getUniversityLatitude();
+  double? getUniversityLongitude();
+  Future<void> setUniversityLocation(double lat, double lng);
+  int getUniversityRadius();
+  Future<void> setUniversityRadius(int meters);
   Map<String, dynamic> exportAll();
   Future<void> importAll(Map<String, dynamic> data);
 }

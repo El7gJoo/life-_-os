@@ -101,6 +101,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get done => 'تم';
 
   @override
+  String get pending => 'قيد الانتظار';
+
+  @override
   String get undo => 'تراجع';
 
   @override

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/utils/rtl_utils.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../finance/presentation/cubits/finance_cubit.dart';
 import '../../../finance/presentation/cubits/finance_state.dart';
@@ -108,7 +109,168 @@ class StatsScreen extends StatelessWidget {
 
           const SizedBox(height: 16),
 
-          // Habit & Consistency Metrics (Study & Lifestyle)
+          // University & Academic Consistency (Attendance Rate & Subject Study Minutes)
+          BlocBuilder<ScheduleCubit, ScheduleState>(
+            builder: (context, scheduleState) {
+              final now = DateTime.now();
+              final daysSinceSaturday = (now.weekday % 7 + 1) % 7;
+              final weekStart = DateTime(now.year, now.month, now.day).subtract(Duration(days: daysSinceSaturday));
+              final weekEnd = weekStart.add(const Duration(days: 6, hours: 23, minutes: 59, seconds: 59));
+
+              final weekAttendance = scheduleState.attendanceRecords.where((r) {
+                final dt = r.timestamp;
+                return dt.isAfter(weekStart.subtract(const Duration(seconds: 1))) &&
+                    dt.isBefore(weekEnd.add(const Duration(seconds: 1)));
+              }).length;
+
+              final totalWeeklyScheduled = scheduleState.sessions.length;
+              final attendanceRate = totalWeeklyScheduled == 0
+                  ? 0.0
+                  : ((weekAttendance / totalWeeklyScheduled) * 100).clamp(0.0, 100.0);
+
+              // Study minutes per subject
+              final minutesPerSubject = <String, int>{};
+              for (final log in scheduleState.studyLogs) {
+                minutesPerSubject[log.subjectId] = (minutesPerSubject[log.subjectId] ?? 0) + log.minutes;
+              }
+              final totalStudyMinutes = minutesPerSubject.values.fold(0, (sum, m) => sum + m);
+
+              return Card(
+                elevation: 3,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        l10n.studyConsistency,
+                        style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(height: 16),
+                      // Weekly Attendance Rate Row
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: AppColors.primary.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(10),
+                              decoration: const BoxDecoration(
+                                color: AppColors.primary,
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(Icons.school, color: Colors.white, size: 20),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    l10n.weeklyAttendanceRate,
+                                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                                  ),
+                                  Text(
+                                    '${RtlUtils.ltr('$weekAttendance / $totalWeeklyScheduled')} ${l10n.attended}',
+                                    style: const TextStyle(fontSize: 11, color: Colors.grey),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Text(
+                              RtlUtils.ltr('${attendanceRate.toStringAsFixed(0)}%'),
+                              style: const TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: AppColors.primary,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      // Subject Study Minutes Breakdown
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            l10n.subjects,
+                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                          ),
+                          Text(
+                            l10n.minutesCount(totalStudyMinutes),
+                            style: const TextStyle(fontSize: 12, color: Colors.grey),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      if (scheduleState.subjects.isEmpty)
+                        Text(
+                          l10n.noSubjectsYet,
+                          style: const TextStyle(fontSize: 12, color: Colors.grey),
+                        )
+                      else
+                        Column(
+                          children: scheduleState.subjects.map((sub) {
+                            final mins = minutesPerSubject[sub.id] ?? 0;
+                            final subColor = Color(sub.colorValue);
+                            final fraction = totalStudyMinutes > 0 ? (mins / totalStudyMinutes) : 0.0;
+
+                            return Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 4),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Row(
+                                        children: [
+                                          Container(
+                                            width: 10,
+                                            height: 10,
+                                            decoration: BoxDecoration(color: subColor, shape: BoxShape.circle),
+                                          ),
+                                          const SizedBox(width: 6),
+                                          Text(
+                                            sub.name,
+                                            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+                                          ),
+                                        ],
+                                      ),
+                                      Text(
+                                        l10n.minutesCount(mins),
+                                        style: const TextStyle(fontSize: 11, color: Colors.grey),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 4),
+                                  LinearProgressIndicator(
+                                    value: fraction.clamp(0.0, 1.0),
+                                    backgroundColor: Colors.grey.withValues(alpha: 0.15),
+                                    valueColor: AlwaysStoppedAnimation<Color>(subColor),
+                                    minHeight: 6,
+                                    borderRadius: BorderRadius.circular(3),
+                                  ),
+                                ],
+                              ),
+                            );
+                          }).toList(),
+                        ),
+                    ],
+                  ),
+                ),
+              );
+            },
+          ),
+
+          const SizedBox(height: 16),
+
+          // Habit & Consistency Metrics (Lifestyle)
           BlocBuilder<ScheduleCubit, ScheduleState>(
             builder: (context, scheduleState) {
               return BlocBuilder<LifestyleCubit, LifestyleState>(
@@ -126,7 +288,7 @@ class StatsScreen extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Consistency & Habits',
+                            l10n.lifestyleDailyScore,
                             style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
                           ),
                           const SizedBox(height: 16),
@@ -136,9 +298,9 @@ class StatsScreen extends StatelessWidget {
                                 child: _buildStatTile(
                                   icon: Icons.checklist_rtl,
                                   color: AppColors.primary,
-                                  title: 'Tasks Done',
-                                  value: '$completedTasks / $totalTasks',
-                                  subtitle: '${(taskRatio * 100).toStringAsFixed(0)}% completion',
+                                  title: l10n.today,
+                                  value: RtlUtils.ltr('$completedTasks / $totalTasks'),
+                                  subtitle: '${(taskRatio * 100).toStringAsFixed(0)}%',
                                 ),
                               ),
                               const SizedBox(width: 12),
@@ -146,9 +308,9 @@ class StatsScreen extends StatelessWidget {
                                 child: _buildStatTile(
                                   icon: Icons.water_drop,
                                   color: AppColors.info,
-                                  title: 'Water Intake',
-                                  value: '${lifestyleState.waterCups} cups',
-                                  subtitle: '${((lifestyleState.waterCups / 8.0).clamp(0.0, 1.0) * 100).toInt()}% goal',
+                                  title: l10n.waterCups(lifestyleState.waterCups),
+                                  value: RtlUtils.ltr('${lifestyleState.waterCups}'),
+                                  subtitle: '${((lifestyleState.waterCups / 8.0).clamp(0.0, 1.0) * 100).toInt()}%',
                                 ),
                               ),
                             ],
@@ -160,8 +322,8 @@ class StatsScreen extends StatelessWidget {
                                 child: _buildStatTile(
                                   icon: Icons.fitness_center,
                                   color: AppColors.neonEnergyLight,
-                                  title: 'Workout',
-                                  value: lifestyleState.gymSession ? 'Completed' : 'Pending',
+                                  title: l10n.gymSession,
+                                  value: lifestyleState.gymSession ? l10n.done : l10n.pending,
                                   subtitle: lifestyleState.gymSession ? '+20 pts' : '0 pts',
                                 ),
                               ),
@@ -170,8 +332,8 @@ class StatsScreen extends StatelessWidget {
                                 child: _buildStatTile(
                                   icon: Icons.restaurant,
                                   color: AppColors.emeraldGreenLight,
-                                  title: 'Healthy Meals',
-                                  value: '${lifestyleState.healthyMeals} meals',
+                                  title: l10n.meals,
+                                  value: RtlUtils.ltr('${lifestyleState.healthyMeals}'),
                                   subtitle: '+${lifestyleState.healthyMeals * 5} pts',
                                 ),
                               ),

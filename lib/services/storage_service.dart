@@ -94,9 +94,16 @@ class StorageService {
   Map<String, dynamic> _migrate(Map<String, dynamic> data, int fromVersion) {
     var migrated = Map<String, dynamic>.from(data);
     // Migration logic across schema versions:
-    // When schemaVersion advances from 1 -> 2, transform schema here.
-    if (fromVersion < 1) {
-      // Pre-v1 normalization
+    if (fromVersion < 2) {
+      // Migrate v1 -> v2: Ensure schedule has subjects, sessions, attendance, studyLogs
+      if (migrated.containsKey('schedule') && migrated['schedule'] is Map) {
+        final sched = Map<String, dynamic>.from(migrated['schedule'] as Map);
+        sched.putIfAbsent('subjects', () => <dynamic>[]);
+        sched.putIfAbsent('sessions', () => <dynamic>[]);
+        sched.putIfAbsent('attendance', () => <dynamic>[]);
+        sched.putIfAbsent('studyLogs', () => <dynamic>[]);
+        migrated['schedule'] = sched;
+      }
     }
     return migrated;
   }

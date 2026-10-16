@@ -1,15 +1,18 @@
 import 'dart:async';
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import '../../../../core/constants/app_colors.dart';
-import '../../../../core/constants/app_constants.dart';
 import '../../../../core/utils/haptic_utils.dart';
+import '../../../../core/utils/rtl_utils.dart';
 import '../../../../core/widgets/category_background_wrapper.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../data/models/schedule_item_model.dart';
 import '../cubits/schedule_cubit.dart';
 import '../cubits/schedule_state.dart';
+import 'subjects_screen.dart';
+import 'timetable_screen.dart';
 
 class ScheduleScreen extends StatelessWidget {
   const ScheduleScreen({super.key});
@@ -23,6 +26,11 @@ class ScheduleScreen extends StatelessWidget {
       category: CategoryTheme.academic,
       child: BlocBuilder<ScheduleCubit, ScheduleState>(
         builder: (context, state) {
+          final now = DateTime.now();
+          final todayStr = '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
+          final todaySessions = state.sessions.where((s) => s.weekday == now.weekday).toList()
+            ..sort((a, b) => a.startMinutes.compareTo(b.startMinutes));
+
           return Scaffold(
             backgroundColor: Colors.transparent,
             appBar: AppBar(
@@ -30,6 +38,24 @@ class ScheduleScreen extends StatelessWidget {
               backgroundColor: Colors.transparent,
               elevation: 0,
               actions: [
+                IconButton(
+                  tooltip: l10n.universityTimetable,
+                  icon: const Icon(Icons.calendar_month),
+                  onPressed: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(builder: (_) => const TimetableScreen()),
+                    );
+                  },
+                ),
+                IconButton(
+                  tooltip: l10n.subjects,
+                  icon: const Icon(Icons.menu_book),
+                  onPressed: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(builder: (_) => const SubjectsScreen()),
+                    );
+                  },
+                ),
                 IconButton(
                   tooltip: l10n.emergencyShift,
                   icon: const Icon(Icons.forward_10),
@@ -45,68 +71,298 @@ class ScheduleScreen extends StatelessWidget {
             body: ListView(
               padding: const EdgeInsets.all(16),
               children: [
-                // Sleep Calculator Card
+                // Quick Navigation banner to University Timetable
                 Card(
                   elevation: 2,
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            const Icon(Icons.bedtime, color: AppColors.midnightIndigoLight),
-                            const SizedBox(width: 8),
-                            Text(
-                              l10n.sleepCalculator,
-                              style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 12),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceAround,
-                          children: [
-                            Column(
-                              children: [
-                                Text(l10n.targetBedtime, style: theme.textTheme.bodySmall),
-                                const SizedBox(height: 4),
-                                Text(
-                                  state.targetBedtime != null
-                                      ? DateFormat('hh:mm a').format(state.targetBedtime!)
-                                      : '--:--',
-                                  style: theme.textTheme.titleMedium?.copyWith(
-                                    fontWeight: FontWeight.bold,
-                                    color: AppColors.midnightIndigoLight,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const Icon(Icons.arrow_forward, color: Colors.grey),
-                            Column(
-                              children: [
-                                Text(l10n.targetWakeUp, style: theme.textTheme.bodySmall),
-                                const SizedBox(height: 4),
-                                Text(
-                                  state.targetWakeUpTime != null
-                                      ? DateFormat('hh:mm a').format(state.targetWakeUpTime!)
-                                      : '--:--',
-                                  style: theme.textTheme.titleMedium?.copyWith(
-                                    fontWeight: FontWeight.bold,
-                                    color: AppColors.neonEnergyLight,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ],
+                  child: ListTile(
+                    leading: Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        color: AppColors.primary.withValues(alpha: 0.15),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(Icons.school, color: AppColors.primary),
                     ),
+                    title: Text(
+                      l10n.universityTimetable,
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    subtitle: Text('${state.sessions.length} sessions • ${state.subjects.length} subjects'),
+                    trailing: const Icon(Icons.chevron_right),
+                    onTap: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(builder: (_) => const TimetableScreen()),
+                      );
+                    },
                   ),
                 ),
 
                 const SizedBox(height: 16),
+
+                // Attendance Checklist Section (Part B6)
+                if (todaySessions.isNotEmpty) ...[
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        l10n.attendanceChecklist,
+                        style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                      ),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: AppColors.emeraldGreenLight.withValues(alpha: 0.15),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Text(
+                          l10n.attendedPoints(10),
+                          style: const TextStyle(
+                            color: AppColors.emeraldGreenLight,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 12,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+
+                  ...todaySessions.map((session) {
+                    final subject = state.subjects.firstWhereOrNull((s) => s.id == session.subjectId);
+                    final subjectColor = Color(subject?.colorValue ?? 0xFF2196F3);
+                    final record = state.attendanceRecords.firstWhereOrNull(
+                      (r) => r.sessionId == session.id && r.dateStr == todayStr,
+                    );
+                    final isAttended = record != null;
+
+                    return Card(
+                      margin: const EdgeInsets.only(bottom: 8),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        side: BorderSide(
+                          color: isAttended
+                              ? AppColors.emeraldGreenLight
+                              : subjectColor.withValues(alpha: 0.4),
+                          width: 1.5,
+                        ),
+                      ),
+                      child: ListTile(
+                        leading: CircleAvatar(
+                          backgroundColor: subjectColor.withValues(alpha: 0.15),
+                          child: Icon(
+                            session.type == 'lab'
+                                ? Icons.science
+                                : session.type == 'section'
+                                    ? Icons.group
+                                    : Icons.school,
+                            color: subjectColor,
+                            size: 20,
+                          ),
+                        ),
+                        title: Text(
+                          subject?.name ?? 'University Class',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            decoration: isAttended ? TextDecoration.lineThrough : null,
+                          ),
+                        ),
+                        subtitle: Text(
+                          '${_formatSessionType(context, session.type)} • ${RtlUtils.formatTime(session.startHour, session.startMinute)} - ${RtlUtils.formatTime(session.endHour, session.endMinute)}',
+                        ),
+                        trailing: isAttended
+                            ? Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                    decoration: BoxDecoration(
+                                      color: AppColors.emeraldGreenLight.withValues(alpha: 0.15),
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: Text(
+                                      '${l10n.attended} ✓',
+                                      style: const TextStyle(
+                                        color: AppColors.emeraldGreenLight,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 12,
+                                      ),
+                                    ),
+                                  ),
+                                  IconButton(
+                                    icon: const Icon(Icons.undo, size: 18, color: Colors.grey),
+                                    tooltip: l10n.undo,
+                                    onPressed: () => context.read<ScheduleCubit>().undoAttendance(record.id),
+                                  ),
+                                ],
+                              )
+                            : ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: AppColors.primary,
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                ),
+                                onPressed: () async {
+                                  final cubit = context.read<ScheduleCubit>();
+                                  final messenger = ScaffoldMessenger.of(context);
+                                  await HapticUtils.heavyImpact();
+                                  final error = await cubit.checkInAttendance(session);
+                                  if (error != null) {
+                                    messenger.showSnackBar(
+                                      SnackBar(
+                                        content: Text(
+                                          error == 'Attendance allowed after session starts'
+                                              ? l10n.attendanceBeforeStart
+                                              : error == 'Already marked as attended'
+                                                  ? l10n.alreadyAttended
+                                                  : error,
+                                        ),
+                                        backgroundColor: AppColors.warning,
+                                      ),
+                                    );
+                                  } else {
+                                    messenger.showSnackBar(
+                                      SnackBar(
+                                        content: Text('${l10n.attended}! +10 pts 🎉'),
+                                        backgroundColor: AppColors.emeraldGreenLight,
+                                      ),
+                                    );
+                                  }
+                                },
+                                child: Text(
+                                  l10n.attendedPoints(10),
+                                  style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                                ),
+                              ),
+                      ),
+                    );
+                  }),
+                  const SizedBox(height: 16),
+                ],
+
+                // DayPlanner Timeline Milestones (Part B4 & B7)
+                if (state.dayPlan != null) ...[
+                  Card(
+                    elevation: 2,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Row(
+                                children: [
+                                  const Icon(Icons.timeline, color: AppColors.primary),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    'Smart Day Timeline',
+                                    style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                                  ),
+                                ],
+                              ),
+                              Text(
+                                'Commute: ${state.commuteMinutes}m',
+                                style: theme.textTheme.bodySmall?.copyWith(color: Colors.grey),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 14),
+
+                          // Milestones Row
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            children: [
+                              _buildMilestoneItem(
+                                icon: Icons.wb_sunny_outlined,
+                                label: l10n.timelineWakeUp,
+                                time: state.dayPlan!.wakeUpTime,
+                                color: AppColors.neonEnergyLight,
+                              ),
+                              if (state.dayPlan!.leaveHomeTime != null)
+                                _buildMilestoneItem(
+                                  icon: Icons.directions_walk,
+                                  label: l10n.timelineLeaveHome,
+                                  time: state.dayPlan!.leaveHomeTime,
+                                  color: AppColors.primary,
+                                ),
+                              if (state.dayPlan!.returnHomeTime != null)
+                                _buildMilestoneItem(
+                                  icon: Icons.home_outlined,
+                                  label: l10n.timelineReturnHome,
+                                  time: state.dayPlan!.returnHomeTime,
+                                  color: AppColors.emeraldGreenLight,
+                                ),
+                              _buildMilestoneItem(
+                                icon: Icons.bedtime_outlined,
+                                label: l10n.timelineBedtime,
+                                time: state.dayPlan!.bedtime,
+                                color: AppColors.midnightIndigoLight,
+                              ),
+                            ],
+                          ),
+
+                          // Free Windows & Suggested Study
+                          if (state.dayPlan!.freeWindows.isNotEmpty ||
+                              state.dayPlan!.suggestedStudyBlocks.isNotEmpty) ...[
+                            const SizedBox(height: 14),
+                            const Divider(height: 1),
+                            const SizedBox(height: 12),
+                            Text(
+                              'Study Opportunities Today',
+                              style: theme.textTheme.bodySmall?.copyWith(fontWeight: FontWeight.bold),
+                            ),
+                            const SizedBox(height: 8),
+                            ...state.dayPlan!.suggestedStudyBlocks.map((block) {
+                              return Container(
+                                margin: const EdgeInsets.only(bottom: 6),
+                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                decoration: BoxDecoration(
+                                  color: AppColors.primary.withValues(alpha: 0.08),
+                                  borderRadius: BorderRadius.circular(10),
+                                  border: Border.all(color: AppColors.primary.withValues(alpha: 0.2)),
+                                ),
+                                child: Row(
+                                  children: [
+                                    const Icon(Icons.auto_stories, color: AppColors.primary, size: 18),
+                                    const SizedBox(width: 8),
+                                    Expanded(
+                                      child: Text(
+                                        '${l10n.suggestedStudy(block.durationMinutes)}: ${DateFormat('hh:mm a').format(block.start)} - ${DateFormat('hh:mm a').format(block.end)}',
+                                        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+                                      ),
+                                    ),
+                                    TextButton(
+                                      style: TextButton.styleFrom(padding: EdgeInsets.zero, visualDensity: VisualDensity.compact),
+                                      onPressed: () {
+                                        _showPomodoroTimer(
+                                          context,
+                                          ScheduleItemModel(
+                                            title: state.suggestedStudySubject?.name ?? 'Study Block',
+                                            type: 'study',
+                                            startHour: block.start.hour,
+                                            startMinute: block.start.minute,
+                                            durationMinutes: block.durationMinutes,
+                                          ),
+                                        );
+                                      },
+                                      child: Text(l10n.startPomodoro, style: const TextStyle(fontSize: 12)),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            }),
+                          ],
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                ],
+
+                // Today's General Tasks Section
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -182,6 +438,50 @@ class ScheduleScreen extends StatelessWidget {
     );
   }
 
+  Widget _buildMilestoneItem({
+    required IconData icon,
+    required String label,
+    required DateTime? time,
+    required Color color,
+  }) {
+    return Column(
+      children: [
+        Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: color.withValues(alpha: 0.15),
+            shape: BoxShape.circle,
+          ),
+          child: Icon(icon, color: color, size: 20),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          label,
+          style: const TextStyle(fontSize: 11, color: Colors.grey),
+        ),
+        const SizedBox(height: 2),
+        Text(
+          time != null ? DateFormat('hh:mm a').format(time) : '--:--',
+          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+        ),
+      ],
+    );
+  }
+
+  String _formatSessionType(BuildContext context, String type) {
+    final l10n = AppLocalizations.of(context);
+    switch (type) {
+      case 'lecture':
+        return l10n.lecture;
+      case 'section':
+        return l10n.section;
+      case 'lab':
+        return l10n.lab;
+      default:
+        return type;
+    }
+  }
+
   void _confirmEmergencyShift(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     showDialog(
@@ -242,7 +542,6 @@ class ScheduleScreen extends StatelessWidget {
                   items: const [
                     DropdownMenuItem(value: 'task', child: Text('Task')),
                     DropdownMenuItem(value: 'study', child: Text('Study / Pomodoro')),
-                    DropdownMenuItem(value: 'lecture', child: Text('University Lecture')),
                     DropdownMenuItem(value: 'errand', child: Text('Errand')),
                   ],
                   onChanged: (val) {
@@ -391,8 +690,8 @@ class _PomodoroTimerDialogState extends State<_PomodoroTimerDialog> {
       context.read<ScheduleCubit>().completePomodoro(widget.item.id);
       Navigator.of(context).pop();
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Pomodoro Completed! +${AppConstants.pomodoroPoints} points awarded!'),
+        const SnackBar(
+          content: Text('Pomodoro Completed! +20 points awarded! 🎉'),
           backgroundColor: AppColors.success,
         ),
       );

@@ -101,6 +101,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get done => 'Done';
 
   @override
+  String get pending => 'Pending';
+
+  @override
   String get undo => 'Undo';
 
   @override

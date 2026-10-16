@@ -49,7 +49,13 @@ Future<void> setupDependencies() async {
     ),
   );
   getIt.registerLazySingleton<ScheduleRepository>(
-    () => ScheduleRepositoryImpl(Hive.box(AppConstants.scheduleBox)),
+    () => ScheduleRepositoryImpl(
+      Hive.box(AppConstants.scheduleBox),
+      subjectsBox: Hive.box(AppConstants.subjectsBox),
+      timetableBox: Hive.box(AppConstants.timetableBox),
+      attendanceBox: Hive.box(AppConstants.attendanceBox),
+      studyLogsBox: Hive.box(AppConstants.studyLogsBox),
+    ),
   );
   getIt.registerLazySingleton<FianceeRepository>(
     () => FianceeRepositoryImpl(Hive.box(AppConstants.fianceeBox)),
