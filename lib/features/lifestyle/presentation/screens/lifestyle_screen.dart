@@ -37,7 +37,7 @@ class LifestyleScreen extends StatelessWidget {
                       Container(
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
-                          color: AppColors.info.withOpacity(0.15),
+                          color: AppColors.info.withValues(alpha: 0.15),
                           shape: BoxShape.circle,
                         ),
                         child: const Icon(Icons.water_drop, color: AppColors.info),
@@ -86,7 +86,7 @@ class LifestyleScreen extends StatelessWidget {
                       Container(
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
-                          color: AppColors.emeraldGreenLight.withOpacity(0.15),
+                          color: AppColors.emeraldGreenLight.withValues(alpha: 0.15),
                           shape: BoxShape.circle,
                         ),
                         child: const Icon(Icons.restaurant, color: AppColors.emeraldGreenLight),
@@ -135,7 +135,7 @@ class LifestyleScreen extends StatelessWidget {
                       Container(
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
-                          color: AppColors.neonEnergyLight.withOpacity(0.15),
+                          color: AppColors.neonEnergyLight.withValues(alpha: 0.15),
                           shape: BoxShape.circle,
                         ),
                         child: const Icon(Icons.fitness_center, color: AppColors.neonEnergyLight),

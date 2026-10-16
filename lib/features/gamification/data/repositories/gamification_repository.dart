@@ -1,20 +1,31 @@
-import '../../domain/entities/ledger_entry.dart';
-import '../../domain/entities/reward.dart';
 import '../models/claimed_reward_model.dart';
+import '../models/ledger_entry_model.dart';
+import '../models/reward_model.dart';
 
 abstract class GamificationRepository {
-  List<LedgerEntry> getLedgerEntries();
-  Future<void> addLedgerEntry(LedgerEntry entry);
-  Future<void> undoLedgerEntry(String entryId);
+  Future<void> addLedgerEntry(LedgerEntryModel entry);
+  List<LedgerEntryModel> getLedgerEntries();
+  LedgerEntryModel? getEntryById(String id);
+  Future<LedgerEntryModel?> addReversal(String entryId, String reason);
+
   int getCurrentPoints();
   int getTotalLifetimePoints();
-  int getCurrentStreakDays();
+  int getCurrentStreakDays([int dayBoundaryHour = 4]);
+  String? getStreakFreezeWeek();
+  Future<void> setStreakFreezeWeek(String weekKey);
   Future<void> updateStreak(int days);
-  List<Reward> getRewards();
-  Future<void> saveReward(Reward reward);
+
+  Future<void> addReward(RewardModel reward);
+  List<RewardModel> getRewards();
+  List<RewardModel> getRewardsByTier(String tier);
+  Future<void> updateReward(RewardModel reward);
   Future<void> deleteReward(String id);
+  Future<void> seedDefaultRewards();
+
+  Future<void> addClaimedReward(ClaimedRewardModel claimedReward);
   List<ClaimedRewardModel> getClaimedRewards();
-  Future<void> claimReward(ClaimedRewardModel claimedReward);
+  Future<void> deleteClaimedReward(String id);
+
   Map<String, dynamic> exportAll();
   Future<void> importAll(Map<String, dynamic> data);
 }

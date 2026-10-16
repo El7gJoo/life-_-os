@@ -1,9 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:intl/intl.dart';
-import 'package:uuid/uuid.dart';
 import '../../../../core/constants/app_constants.dart';
+import '../../../gamification/data/models/ledger_entry_model.dart';
 import '../../../gamification/data/repositories/gamification_repository.dart';
-import '../../../gamification/domain/entities/ledger_entry.dart';
 import '../../data/models/lifestyle_log_model.dart';
 import '../../data/repositories/lifestyle_repository.dart';
 import 'lifestyle_state.dart';
@@ -16,95 +14,111 @@ class LifestyleCubit extends Cubit<LifestyleState> {
     this._lifestyleRepository,
     this._gamificationRepository,
   ) : super(LifestyleState(
-          todayLog: _lifestyleRepository.getLogForDate(
-            DateFormat('yyyy-MM-dd').format(DateTime.now()),
-          ),
-          allLogs: _lifestyleRepository.getAllLogs(),
-        ));
-
-  String get _todayDateKey => DateFormat('yyyy-MM-dd').format(DateTime.now());
+          waterCups: _lifestyleRepository.getTodayWaterCups(),
+          healthyMeals: _lifestyleRepository.getTodayMealCount(),
+          gymSession: _lifestyleRepository.hasTodayWorkout(),
+          sleepOnTime: false,
+          wakeOnTime: false,
+          allLogs: _lifestyleRepository.getLogs(),
+        )) {
+    refresh();
+  }
 
   void refresh() {
+    final now = DateTime.now();
+    final todayLogs = _lifestyleRepository.getLogsForDate(now);
+    final hasSleep = todayLogs.any((l) => l.type == 'sleep_start');
+    final hasWake = todayLogs.any((l) => l.type == 'wake');
+
     emit(state.copyWith(
-      todayLog: _lifestyleRepository.getLogForDate(_todayDateKey),
-      allLogs: _lifestyleRepository.getAllLogs(),
+      waterCups: _lifestyleRepository.getTodayWaterCups(),
+      healthyMeals: _lifestyleRepository.getTodayMealCount(),
+      gymSession: _lifestyleRepository.hasTodayWorkout(),
+      sleepOnTime: hasSleep,
+      wakeOnTime: hasWake,
+      allLogs: _lifestyleRepository.getLogs(),
     ));
   }
 
   Future<void> addWaterCup() async {
-    final updated = state.todayLog.copyWith(
-      waterCups: state.todayLog.waterCups + 1,
-    );
-    await _lifestyleRepository.saveLog(updated);
+    await _lifestyleRepository.addLog(LifestyleLogModel(
+      type: 'water',
+      timestamp: DateTime.now(),
+      value: 1,
+    ));
     refresh();
   }
 
   Future<void> addHealthyMeal() async {
-    final updated = state.todayLog.copyWith(
-      healthyMeals: state.todayLog.healthyMeals + 1,
-    );
-    await _lifestyleRepository.saveLog(updated);
-
-    await _gamificationRepository.addLedgerEntry(LedgerEntry(
-      id: const Uuid().v4(),
+    final ledgerEntry = LedgerEntryModel(
       points: AppConstants.healthyMealPoints,
       reason: 'Logged Healthy Meal',
       sourceFeature: 'lifestyle',
       timestamp: DateTime.now(),
+    );
+    await _gamificationRepository.addLedgerEntry(ledgerEntry);
+
+    await _lifestyleRepository.addLog(LifestyleLogModel(
+      type: 'meal',
+      timestamp: DateTime.now(),
+      value: 1,
+      ledgerEntryId: ledgerEntry.id,
     ));
 
     refresh();
   }
 
   Future<void> toggleGymSession() async {
-    final newStatus = !state.todayLog.gymSession;
-    final updated = state.todayLog.copyWith(gymSession: newStatus);
-    await _lifestyleRepository.saveLog(updated);
+    final ledgerEntry = LedgerEntryModel(
+      points: AppConstants.gymSessionPoints,
+      reason: 'Gym Workout Session',
+      sourceFeature: 'lifestyle',
+      timestamp: DateTime.now(),
+    );
+    await _gamificationRepository.addLedgerEntry(ledgerEntry);
 
-    if (newStatus) {
-      await _gamificationRepository.addLedgerEntry(LedgerEntry(
-        id: const Uuid().v4(),
-        points: AppConstants.gymSessionPoints,
-        reason: 'Gym Workout Session',
-        sourceFeature: 'lifestyle',
-        timestamp: DateTime.now(),
-      ));
-    }
+    await _lifestyleRepository.addLog(LifestyleLogModel(
+      type: 'workout',
+      timestamp: DateTime.now(),
+      ledgerEntryId: ledgerEntry.id,
+    ));
 
     refresh();
   }
 
   Future<void> logSleepOnTime() async {
-    if (!state.todayLog.sleepOnTime) {
-      final updated = state.todayLog.copyWith(sleepOnTime: true);
-      await _lifestyleRepository.saveLog(updated);
+    final ledgerEntry = LedgerEntryModel(
+      points: AppConstants.sleepOnTimePoints,
+      reason: 'Slept On Time',
+      sourceFeature: 'lifestyle',
+      timestamp: DateTime.now(),
+    );
+    await _gamificationRepository.addLedgerEntry(ledgerEntry);
 
-      await _gamificationRepository.addLedgerEntry(LedgerEntry(
-        id: const Uuid().v4(),
-        points: AppConstants.sleepOnTimePoints,
-        reason: 'Slept On Time',
-        sourceFeature: 'lifestyle',
-        timestamp: DateTime.now(),
-      ));
+    await _lifestyleRepository.addLog(LifestyleLogModel(
+      type: 'sleep_start',
+      timestamp: DateTime.now(),
+      ledgerEntryId: ledgerEntry.id,
+    ));
 
-      refresh();
-    }
+    refresh();
   }
 
   Future<void> logWakeOnTime() async {
-    if (!state.todayLog.wakeOnTime) {
-      final updated = state.todayLog.copyWith(wakeOnTime: true);
-      await _lifestyleRepository.saveLog(updated);
+    final ledgerEntry = LedgerEntryModel(
+      points: AppConstants.wakeOnTimePoints,
+      reason: 'Woke Up On Time',
+      sourceFeature: 'lifestyle',
+      timestamp: DateTime.now(),
+    );
+    await _gamificationRepository.addLedgerEntry(ledgerEntry);
 
-      await _gamificationRepository.addLedgerEntry(LedgerEntry(
-        id: const Uuid().v4(),
-        points: AppConstants.wakeOnTimePoints,
-        reason: 'Woke Up On Time',
-        sourceFeature: 'lifestyle',
-        timestamp: DateTime.now(),
-      ));
+    await _lifestyleRepository.addLog(LifestyleLogModel(
+      type: 'wake',
+      timestamp: DateTime.now(),
+      ledgerEntryId: ledgerEntry.id,
+    ));
 
-      refresh();
-    }
+    refresh();
   }
 }

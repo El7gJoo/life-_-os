@@ -1,55 +1,42 @@
-import '../../domain/entities/reward.dart';
+import 'package:uuid/uuid.dart';
 
 class RewardModel {
   final String id;
-  final String title;
-  final String description;
-  final int pointsCost;
-  final String tier;
-  final bool isCustom;
+  final String name;
+  final String tier; // 'bronze', 'silver', 'gold'
+  final bool isDefault;
 
   RewardModel({
-    required this.id,
-    required this.title,
-    this.description = '',
-    required this.pointsCost,
+    String? id,
+    required this.name,
     required this.tier,
-    this.isCustom = false,
-  });
+    this.isDefault = false,
+  }) : id = id ?? const Uuid().v4();
 
   Map<String, dynamic> toJson() => {
         'id': id,
-        'title': title,
-        'description': description,
-        'pointsCost': pointsCost,
+        'name': name,
         'tier': tier,
-        'isCustom': isCustom,
+        'isDefault': isDefault,
       };
 
-  factory RewardModel.fromJson(Map<dynamic, dynamic> json) => RewardModel(
+  factory RewardModel.fromJson(Map<String, dynamic> json) => RewardModel(
         id: json['id'] as String,
-        title: json['title'] as String,
-        description: json['description'] as String? ?? '',
-        pointsCost: json['pointsCost'] as int? ?? 0,
-        tier: json['tier'] as String? ?? 'bronze',
-        isCustom: json['isCustom'] as bool? ?? false,
+        name: json['name'] as String,
+        tier: json['tier'] as String,
+        isDefault: json['isDefault'] as bool? ?? false,
       );
 
-  Reward toEntity() => Reward(
-        id: id,
-        title: title,
-        description: description,
-        pointsCost: pointsCost,
-        tier: tier,
-        isCustom: isCustom,
-      );
-
-  factory RewardModel.fromEntity(Reward entity) => RewardModel(
-        id: entity.id,
-        title: entity.title,
-        description: entity.description,
-        pointsCost: entity.pointsCost,
-        tier: entity.tier,
-        isCustom: entity.isCustom,
+  RewardModel copyWith({
+    String? id,
+    String? name,
+    String? tier,
+    bool? isDefault,
+  }) =>
+      RewardModel(
+        id: id ?? this.id,
+        name: name ?? this.name,
+        tier: tier ?? this.tier,
+        isDefault: isDefault ?? this.isDefault,
       );
 }

@@ -1,7 +1,12 @@
+// ignore: unused_import
+import 'package:intl/intl.dart' as intl;
 import 'app_localizations.dart';
 
+// ignore_for_file: type=lint
+
+/// The translations for Arabic (`ar`).
 class AppLocalizationsAr extends AppLocalizations {
-  AppLocalizationsAr([super.locale = 'ar']);
+  AppLocalizationsAr([String locale = 'ar']) : super(locale);
 
   @override
   String get appTitle => 'نظام الحياة';
@@ -40,7 +45,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get streak => 'السلسلة';
 
   @override
-  String streakDays(int count) => 'سلسلة $count يوم';
+  String streakDays(int count) {
+    return 'سلسلة $count يوم';
+  }
 
   @override
   String get currentPoints => 'النقاط الحالية';
@@ -121,7 +128,8 @@ class AppLocalizationsAr extends AppLocalizations {
   String get morningCheckIn => 'تسجيل الصباح';
 
   @override
-  String get morningCheckInMessage => 'هل لديك أي مهام إضافية خارج جدولك المعتاد اليوم؟';
+  String get morningCheckInMessage =>
+      'هل لديك أي مهام إضافية خارج جدولك المعتاد اليوم؟';
 
   @override
   String get addTask => 'إضافة مهمة';
@@ -139,10 +147,14 @@ class AppLocalizationsAr extends AppLocalizations {
   String get taskCompleted => 'تم إكمال المهمة!';
 
   @override
-  String askBeforeDeducting(int points) => 'لديك $points نقطة!';
+  String askBeforeDeducting(int points) {
+    return 'لديك $points نقطة!';
+  }
 
   @override
-  String spendNow(int amount, String tier) => 'إنفاق $amount نقطة على $tier';
+  String spendNow(int amount, String tier) {
+    return 'إنفاق $amount نقطة على $tier';
+  }
 
   @override
   String get keepSaving => 'الاستمرار في الادخار';
@@ -178,7 +190,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get prepTime => 'وقت التحضير والتنقل';
 
   @override
-  String prepTimeMinutes(int minutes) => '$minutes دقيقة';
+  String prepTimeMinutes(int minutes) {
+    return '$minutes دقيقة';
+  }
 
   @override
   String get currency => 'العملة';
@@ -232,10 +246,14 @@ class AppLocalizationsAr extends AppLocalizations {
   String get occasionDate => 'تاريخ المناسبة';
 
   @override
-  String daysUntil(int days) => '$days يوم حتى';
+  String daysUntil(int days) {
+    return '$days يوم حتى';
+  }
 
   @override
-  String hoursUntil(int hours) => '$hours ساعة حتى';
+  String hoursUntil(int hours) {
+    return '$hours ساعة حتى';
+  }
 
   @override
   String get repeatYearly => 'تكرار سنوي';
@@ -313,7 +331,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get monthlyBudget => 'الميزانية الشهرية';
 
   @override
-  String budgetAlert(int percent) => 'لقد استخدمت $percent٪ من ميزانيتك';
+  String budgetAlert(int percent) {
+    return 'لقد استخدمت $percent٪ من ميزانيتك';
+  }
 
   @override
   String get rolloverSavings => 'نقل إلى خزنة الادخار';
@@ -370,7 +390,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get recurrence => 'التكرار';
 
   @override
-  String weeklyOn(String day) => 'أسبوعياً $day';
+  String weeklyOn(String day) {
+    return 'أسبوعياً $day';
+  }
 
   @override
   String get meals => 'الوجبات';
@@ -385,7 +407,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get healthyMeal => 'وجبة صحية';
 
   @override
-  String waterCups(int cups) => '$cups كوب';
+  String waterCups(int cups) {
+    return '$cups كوب';
+  }
 
   @override
   String get addWater => 'إضافة ماء';
@@ -475,7 +499,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get multiplier => 'المضاعف';
 
   @override
-  String activeMultiplier(String mult) => 'مضاعف $mult x نشط!';
+  String activeMultiplier(String mult) {
+    return 'مضاعف ${mult}x نشط!';
+  }
 
   @override
   String get error => 'خطأ';

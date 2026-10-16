@@ -1,11 +1,10 @@
 import 'dart:math';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:uuid/uuid.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../data/models/claimed_reward_model.dart';
+import '../../data/models/ledger_entry_model.dart';
+import '../../data/models/reward_model.dart';
 import '../../data/repositories/gamification_repository.dart';
-import '../../domain/entities/ledger_entry.dart';
-import '../../domain/entities/reward.dart';
 import 'gamification_state.dart';
 
 class GamificationCubit extends Cubit<GamificationState> {
@@ -43,8 +42,7 @@ class GamificationCubit extends Cubit<GamificationState> {
 
   Future<void> awardPoints(int basePoints, String reason, String sourceFeature) async {
     final effectivePoints = (basePoints * state.activeMultiplier).round();
-    final entry = LedgerEntry(
-      id: const Uuid().v4(),
+    final entry = LedgerEntryModel(
       points: effectivePoints,
       reason: state.activeMultiplier > 1.0 ? '$reason (${state.activeMultiplier}x)' : reason,
       sourceFeature: sourceFeature,
@@ -55,8 +53,7 @@ class GamificationCubit extends Cubit<GamificationState> {
   }
 
   Future<void> deductPoints(int points, String reason, String sourceFeature) async {
-    final entry = LedgerEntry(
-      id: const Uuid().v4(),
+    final entry = LedgerEntryModel(
       points: -points.abs(),
       reason: reason,
       sourceFeature: sourceFeature,
@@ -67,11 +64,11 @@ class GamificationCubit extends Cubit<GamificationState> {
   }
 
   Future<void> undo(String entryId) async {
-    await _repository.undoLedgerEntry(entryId);
+    await _repository.addReversal(entryId, 'Undo');
     refresh();
   }
 
-  Future<Reward?> redeemTier(String tier) async {
+  Future<RewardModel?> redeemTier(String tier) async {
     int cost;
     switch (tier.toLowerCase()) {
       case 'gold':
@@ -90,28 +87,35 @@ class GamificationCubit extends Cubit<GamificationState> {
       return null;
     }
 
-    final tierRewards = state.rewards.where((r) => r.tier.toLowerCase() == tier.toLowerCase()).toList();
+    final tierRewards = _repository.getRewardsByTier(tier);
     if (tierRewards.isEmpty) {
       return null;
     }
 
     final selected = tierRewards[Random().nextInt(tierRewards.length)];
 
-    await deductPoints(cost, 'Redeemed ${selected.title} ($tier)', 'gamification');
+    final ledgerEntry = LedgerEntryModel(
+      points: -cost,
+      reason: 'Redeemed ${selected.name} ($tier)',
+      sourceFeature: 'gamification',
+      timestamp: DateTime.now(),
+    );
+    await _repository.addLedgerEntry(ledgerEntry);
 
     final claimed = ClaimedRewardModel(
-      id: const Uuid().v4(),
-      rewardId: selected.id,
-      title: selected.title,
+      rewardName: selected.name,
       tier: tier,
       pointsSpent: cost,
       claimedAt: DateTime.now(),
+      ledgerEntryId: ledgerEntry.id,
     );
-    await _repository.claimReward(claimed);
+    await _repository.addClaimedReward(claimed);
 
     emit(state.copyWith(
       lastUnlockedReward: selected,
       claimedRewards: _repository.getClaimedRewards(),
+      currentPoints: _repository.getCurrentPoints(),
+      ledgerEntries: _repository.getLedgerEntries(),
     ));
 
     return selected;
@@ -121,8 +125,8 @@ class GamificationCubit extends Cubit<GamificationState> {
     emit(state.copyWith(clearLastUnlockedReward: true));
   }
 
-  Future<void> addReward(Reward reward) async {
-    await _repository.saveReward(reward);
+  Future<void> addReward(RewardModel reward) async {
+    await _repository.addReward(reward);
     refresh();
   }
 

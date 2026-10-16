@@ -1,27 +1,45 @@
+import 'package:uuid/uuid.dart';
+
 class GiftNoteModel {
   final String id;
   final String content;
-  final DateTime dateAdded;
-  final bool isIdea;
+  final String category; // 'gift_idea', 'she_likes', 'note'
+  final DateTime createdAt;
 
   GiftNoteModel({
-    required this.id,
+    String? id,
     required this.content,
-    required this.dateAdded,
-    this.isIdea = false,
-  });
+    required this.category,
+    DateTime? createdAt,
+  })  : id = id ?? const Uuid().v4(),
+        createdAt = createdAt ?? DateTime.now();
+
+  DateTime get dateAdded => createdAt;
 
   Map<String, dynamic> toJson() => {
         'id': id,
         'content': content,
-        'dateAdded': dateAdded.toIso8601String(),
-        'isIdea': isIdea,
+        'category': category,
+        'createdAt': createdAt.toIso8601String(),
       };
 
-  factory GiftNoteModel.fromJson(Map<dynamic, dynamic> json) => GiftNoteModel(
+  factory GiftNoteModel.fromJson(Map<String, dynamic> json) => GiftNoteModel(
         id: json['id'] as String,
         content: json['content'] as String,
-        dateAdded: DateTime.parse(json['dateAdded'] as String),
-        isIdea: json['isIdea'] as bool? ?? false,
+        category: json['category'] as String,
+        createdAt: DateTime.parse(json['createdAt'] as String),
+      );
+
+  GiftNoteModel copyWith({
+    String? id,
+    String? content,
+    String? category,
+    DateTime? createdAt,
+  }) =>
+      GiftNoteModel(
+        id: id ?? this.id,
+        content: content ?? this.content,
+        category: category ?? this.category,
+        createdAt: createdAt ?? this.createdAt,
       );
 }

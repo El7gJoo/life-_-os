@@ -1,7 +1,12 @@
+// ignore: unused_import
+import 'package:intl/intl.dart' as intl;
 import 'app_localizations.dart';
 
+// ignore_for_file: type=lint
+
+/// The translations for English (`en`).
 class AppLocalizationsEn extends AppLocalizations {
-  AppLocalizationsEn([super.locale = 'en']);
+  AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
   String get appTitle => 'Life OS';
@@ -40,7 +45,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get streak => 'Streak';
 
   @override
-  String streakDays(int count) => '$count day streak';
+  String streakDays(int count) {
+    return '$count day streak';
+  }
 
   @override
   String get currentPoints => 'Current Points';
@@ -121,7 +128,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get morningCheckIn => 'Morning Check-in';
 
   @override
-  String get morningCheckInMessage => 'Do you have any extra errands or tasks outside your regular schedule today?';
+  String get morningCheckInMessage =>
+      'Do you have any extra errands or tasks outside your regular schedule today?';
 
   @override
   String get addTask => 'Add Task';
@@ -139,10 +147,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get taskCompleted => 'Task Completed!';
 
   @override
-  String askBeforeDeducting(int points) => 'You have $points points!';
+  String askBeforeDeducting(int points) {
+    return 'You have $points points!';
+  }
 
   @override
-  String spendNow(int amount, String tier) => 'Spend $amount pts for $tier';
+  String spendNow(int amount, String tier) {
+    return 'Spend $amount pts for $tier';
+  }
 
   @override
   String get keepSaving => 'Keep Saving';
@@ -178,7 +190,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get prepTime => 'Prep/Commute Time';
 
   @override
-  String prepTimeMinutes(int minutes) => '$minutes minutes';
+  String prepTimeMinutes(int minutes) {
+    return '$minutes minutes';
+  }
 
   @override
   String get currency => 'Currency';
@@ -232,10 +246,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get occasionDate => 'Occasion Date';
 
   @override
-  String daysUntil(int days) => '$days days until';
+  String daysUntil(int days) {
+    return '$days days until';
+  }
 
   @override
-  String hoursUntil(int hours) => '$hours hours until';
+  String hoursUntil(int hours) {
+    return '$hours hours until';
+  }
 
   @override
   String get repeatYearly => 'Repeat Yearly';
@@ -313,13 +331,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get monthlyBudget => 'Monthly Budget';
 
   @override
-  String budgetAlert(int percent) => "You've used $percent% of your budget";
+  String budgetAlert(int percent) {
+    return 'You\'ve used $percent% of your budget';
+  }
 
   @override
   String get rolloverSavings => 'Roll to Savings Vault';
 
   @override
-  String get rolloverTomorrow => "Roll to Tomorrow's Balance";
+  String get rolloverTomorrow => 'Roll to Tomorrow\'s Balance';
 
   @override
   String get savings => 'Savings';
@@ -349,7 +369,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get emergencyShift => '+1 Hour Shift';
 
   @override
-  String get emergencyShiftConfirm => 'Push all remaining tasks forward by 1 hour?';
+  String get emergencyShiftConfirm =>
+      'Push all remaining tasks forward by 1 hour?';
 
   @override
   String get yes => 'Yes';
@@ -370,7 +391,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get recurrence => 'Recurrence';
 
   @override
-  String weeklyOn(String day) => 'Weekly on $day';
+  String weeklyOn(String day) {
+    return 'Weekly on $day';
+  }
 
   @override
   String get meals => 'Meals';
@@ -385,7 +408,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get healthyMeal => 'Healthy Meal';
 
   @override
-  String waterCups(int cups) => '$cups cups';
+  String waterCups(int cups) {
+    return '$cups cups';
+  }
 
   @override
   String get addWater => 'Add Water';
@@ -475,7 +500,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get multiplier => 'Multiplier';
 
   @override
-  String activeMultiplier(String mult) => '${mult}x multiplier active!';
+  String activeMultiplier(String mult) {
+    return '${mult}x multiplier active!';
+  }
 
   @override
   String get error => 'Error';
@@ -502,7 +529,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get wakeUpReminder => 'Time to wake up!';
 
   @override
-  String get drinkWater => "Don't forget to drink water!";
+  String get drinkWater => 'Don\'t forget to drink water!';
 
   @override
   String get logExpenses => 'Log your recent expenses';

@@ -65,7 +65,7 @@ class FianceeScreen extends StatelessWidget {
                       Container(
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
-                          color: AppColors.romanticRoseLight.withOpacity(0.15),
+                          color: AppColors.romanticRoseLight.withValues(alpha: 0.15),
                           shape: BoxShape.circle,
                         ),
                         child: const Icon(Icons.favorite, color: AppColors.romanticRoseLight),
@@ -146,7 +146,7 @@ class FianceeScreen extends StatelessWidget {
                       margin: const EdgeInsets.only(bottom: 8),
                       child: ListTile(
                         leading: CircleAvatar(
-                          backgroundColor: AppColors.romanticRoseLight.withOpacity(0.15),
+                          backgroundColor: AppColors.romanticRoseLight.withValues(alpha: 0.15),
                           child: const Icon(Icons.cake, color: AppColors.romanticRoseLight),
                         ),
                         title: Text(occasion.title),
@@ -154,7 +154,7 @@ class FianceeScreen extends StatelessWidget {
                         trailing: Container(
                           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                           decoration: BoxDecoration(
-                            color: AppColors.romanticRoseLight.withOpacity(0.15),
+                            color: AppColors.romanticRoseLight.withValues(alpha: 0.15),
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Text(

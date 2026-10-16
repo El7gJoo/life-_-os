@@ -19,8 +19,9 @@ class GamificationScreen extends StatelessWidget {
     return BlocConsumer<GamificationCubit, GamificationState>(
       listener: (context, state) {
         if (state.lastUnlockedReward != null) {
+          final cubit = context.read<GamificationCubit>();
           RewardDialog.show(context, state.lastUnlockedReward!).then((_) {
-            context.read<GamificationCubit>().clearLastUnlockedReward();
+            cubit.clearLastUnlockedReward();
           });
         }
       },
@@ -169,10 +170,10 @@ class GamificationScreen extends StatelessWidget {
                     margin: const EdgeInsets.only(bottom: 8),
                     child: ListTile(
                       leading: CircleAvatar(
-                        backgroundColor: AppColors.primary.withOpacity(0.1),
+                        backgroundColor: AppColors.primary.withValues(alpha: 0.1),
                         child: const Icon(Icons.check, color: AppColors.primary),
                       ),
-                      title: Text(cr.title),
+                      title: Text(cr.rewardName),
                       subtitle: Text('${cr.tier.toUpperCase()} • ${cr.pointsSpent} pts'),
                       trailing: Text(
                         '${cr.claimedAt.month}/${cr.claimedAt.day}',
@@ -210,7 +211,7 @@ class GamificationScreen extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: color.withOpacity(0.15),
+                color: color.withValues(alpha: 0.15),
                 shape: BoxShape.circle,
               ),
               child: Icon(icon, color: color, size: 28),

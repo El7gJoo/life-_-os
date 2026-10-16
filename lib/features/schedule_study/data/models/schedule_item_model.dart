@@ -1,72 +1,122 @@
+import 'package:uuid/uuid.dart';
+
 class ScheduleItemModel {
   final String id;
   final String title;
-  final String description;
-  final DateTime startTime;
-  final DateTime endTime;
+  final String type; // 'lecture', 'study', 'task', 'errand'
+  final int weekday; // 1=Monday … 7=Sunday; 0 = non-recurring
+  final int startHour;
+  final int startMinute;
+  final int durationMinutes;
+  final bool isRecurring;
   final bool isCompleted;
-  final String type; // lecture, study, errand, routine
-  final int? recurrenceDay; // 1 = Mon, 7 = Sun
-  final bool isShifted;
+  final DateTime? completedAt;
+  final DateTime? specificDate; // for non-recurring items
+  final String? ledgerEntryId; // for undo support
+  final int shiftMinutes; // cumulative emergency shift applied
 
   ScheduleItemModel({
-    required this.id,
-    required this.title,
-    this.description = '',
-    required this.startTime,
-    required this.endTime,
-    this.isCompleted = false,
-    this.type = 'routine',
-    this.recurrenceDay,
-    this.isShifted = false,
-  });
-
-  ScheduleItemModel copyWith({
     String? id,
-    String? title,
-    String? description,
-    DateTime? startTime,
-    DateTime? endTime,
-    bool? isCompleted,
-    String? type,
-    int? recurrenceDay,
-    bool? isShifted,
-  }) {
-    return ScheduleItemModel(
-      id: id ?? this.id,
-      title: title ?? this.title,
-      description: description ?? this.description,
-      startTime: startTime ?? this.startTime,
-      endTime: endTime ?? this.endTime,
-      isCompleted: isCompleted ?? this.isCompleted,
-      type: type ?? this.type,
-      recurrenceDay: recurrenceDay ?? this.recurrenceDay,
-      isShifted: isShifted ?? this.isShifted,
-    );
-  }
+    required this.title,
+    required this.type,
+    this.weekday = 0,
+    required this.startHour,
+    required this.startMinute,
+    this.durationMinutes = 60,
+    this.isRecurring = false,
+    this.isCompleted = false,
+    this.completedAt,
+    this.specificDate,
+    this.ledgerEntryId,
+    this.shiftMinutes = 0,
+  }) : id = id ?? const Uuid().v4();
 
   Map<String, dynamic> toJson() => {
         'id': id,
         'title': title,
-        'description': description,
-        'startTime': startTime.toIso8601String(),
-        'endTime': endTime.toIso8601String(),
-        'isCompleted': isCompleted,
         'type': type,
-        'recurrenceDay': recurrenceDay,
-        'isShifted': isShifted,
+        'weekday': weekday,
+        'startHour': startHour,
+        'startMinute': startMinute,
+        'durationMinutes': durationMinutes,
+        'isRecurring': isRecurring,
+        'isCompleted': isCompleted,
+        'completedAt': completedAt?.toIso8601String(),
+        'specificDate': specificDate?.toIso8601String(),
+        'ledgerEntryId': ledgerEntryId,
+        'shiftMinutes': shiftMinutes,
       };
 
-  factory ScheduleItemModel.fromJson(Map<dynamic, dynamic> json) =>
+  factory ScheduleItemModel.fromJson(Map<String, dynamic> json) =>
       ScheduleItemModel(
         id: json['id'] as String,
         title: json['title'] as String,
-        description: json['description'] as String? ?? '',
-        startTime: DateTime.parse(json['startTime'] as String),
-        endTime: DateTime.parse(json['endTime'] as String),
+        type: json['type'] as String,
+        weekday: json['weekday'] as int? ?? 0,
+        startHour: json['startHour'] as int,
+        startMinute: json['startMinute'] as int,
+        durationMinutes: json['durationMinutes'] as int? ?? 60,
+        isRecurring: json['isRecurring'] as bool? ?? false,
         isCompleted: json['isCompleted'] as bool? ?? false,
-        type: json['type'] as String? ?? 'routine',
-        recurrenceDay: json['recurrenceDay'] as int?,
-        isShifted: json['isShifted'] as bool? ?? false,
+        completedAt: json['completedAt'] != null
+            ? DateTime.parse(json['completedAt'] as String)
+            : null,
+        specificDate: json['specificDate'] != null
+            ? DateTime.parse(json['specificDate'] as String)
+            : null,
+        ledgerEntryId: json['ledgerEntryId'] as String?,
+        shiftMinutes: json['shiftMinutes'] as int? ?? 0,
       );
+
+  ScheduleItemModel copyWith({
+    String? id,
+    String? title,
+    String? type,
+    int? weekday,
+    int? startHour,
+    int? startMinute,
+    int? durationMinutes,
+    bool? isRecurring,
+    bool? isCompleted,
+    DateTime? completedAt,
+    DateTime? specificDate,
+    String? ledgerEntryId,
+    int? shiftMinutes,
+  }) =>
+      ScheduleItemModel(
+        id: id ?? this.id,
+        title: title ?? this.title,
+        type: type ?? this.type,
+        weekday: weekday ?? this.weekday,
+        startHour: startHour ?? this.startHour,
+        startMinute: startMinute ?? this.startMinute,
+        durationMinutes: durationMinutes ?? this.durationMinutes,
+        isRecurring: isRecurring ?? this.isRecurring,
+        isCompleted: isCompleted ?? this.isCompleted,
+        completedAt: completedAt ?? this.completedAt,
+        specificDate: specificDate ?? this.specificDate,
+        ledgerEntryId: ledgerEntryId ?? this.ledgerEntryId,
+        shiftMinutes: shiftMinutes ?? this.shiftMinutes,
+      );
+
+  /// Effective start time on a given date, accounting for accumulated shift
+  DateTime effectiveStartTime(DateTime onDate) {
+    final base = DateTime(
+      onDate.year,
+      onDate.month,
+      onDate.day,
+      startHour,
+      startMinute,
+    );
+    return base.add(Duration(minutes: shiftMinutes));
+  }
+
+  DateTime get startTime {
+    final baseDate = specificDate ?? DateTime.now();
+    return effectiveStartTime(baseDate);
+  }
+
+  DateTime get endTime {
+    return startTime.add(Duration(minutes: durationMinutes));
+  }
 }

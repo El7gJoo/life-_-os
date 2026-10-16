@@ -33,7 +33,7 @@ class CsvExportService {
     for (final exp in filtered) {
       final dateStr = DateFormat('yyyy-MM-dd').format(exp.timestamp);
       final timeStr = DateFormat('HH:mm').format(exp.timestamp);
-      final safeNote = '"${exp.note.replaceAll('"', '""')}"';
+      final safeNote = '"${(exp.note ?? '').replaceAll('"', '""')}"';
       buffer.writeln('$dateStr,$timeStr,${exp.category},$safeNote,${exp.amount.toStringAsFixed(2)},$currency');
 
       categoryTotals[exp.category] = (categoryTotals[exp.category] ?? 0) + exp.amount;

@@ -13,74 +13,116 @@ import '../features/schedule_study/data/repositories/schedule_repository.dart';
 import '../features/settings_backup/data/repositories/settings_repository.dart';
 
 class StorageService {
-  Future<String> exportBackupJson() async {
-    final settingsRepo = getIt<SettingsRepository>();
-    final gamificationRepo = getIt<GamificationRepository>();
-    final scheduleRepo = getIt<ScheduleRepository>();
-    final fianceeRepo = getIt<FianceeRepository>();
-    final financeRepo = getIt<FinanceRepository>();
-    final lifestyleRepo = getIt<LifestyleRepository>();
-
-    final backupData = <String, dynamic>{
+  Future<String> exportAllData({
+    required GamificationRepository gamificationRepo,
+    required ScheduleRepository scheduleRepo,
+    required FianceeRepository fianceeRepo,
+    required FinanceRepository financeRepo,
+    required LifestyleRepository lifestyleRepo,
+    required SettingsRepository settingsRepo,
+  }) async {
+    final payload = <String, dynamic>{
       'schemaVersion': AppConstants.schemaVersion,
       'exportedAt': DateTime.now().toIso8601String(),
-      'settings': settingsRepo.exportAll(),
-      'gamification': gamificationRepo.exportAll(),
-      'schedule': scheduleRepo.exportAll(),
-      'fiancee': fianceeRepo.exportAll(),
-      'finance': financeRepo.exportAll(),
-      'lifestyle': lifestyleRepo.exportAll(),
+      'data': {
+        'settings': settingsRepo.exportAll(),
+        'gamification': gamificationRepo.exportAll(),
+        'schedule': scheduleRepo.exportAll(),
+        'fiancee': fianceeRepo.exportAll(),
+        'finance': financeRepo.exportAll(),
+        'lifestyle': lifestyleRepo.exportAll(),
+      },
     };
 
-    return jsonEncode(backupData);
+    return const JsonEncoder.withIndent('  ').convert(payload);
   }
 
-  Future<void> importBackupJson(String jsonString) async {
-    final data = jsonDecode(jsonString) as Map<String, dynamic>;
-    final version = data['schemaVersion'] as int? ?? 1;
+  Future<void> importAllData(
+    String jsonString, {
+    required GamificationRepository gamificationRepo,
+    required ScheduleRepository scheduleRepo,
+    required FianceeRepository fianceeRepo,
+    required FinanceRepository financeRepo,
+    required LifestyleRepository lifestyleRepo,
+    required SettingsRepository settingsRepo,
+  }) async {
+    final root = jsonDecode(jsonString) as Map<String, dynamic>;
+    final schemaVersion = root['schemaVersion'] as int? ?? 1;
+    final rawData = (root['data'] is Map<String, dynamic>)
+        ? root['data'] as Map<String, dynamic>
+        : root;
 
-    // Apply migrations if needed
-    final migrated = _migrateData(data, version);
+    final migratedData = _migrate(rawData, schemaVersion);
 
-    if (migrated.containsKey('settings') && migrated['settings'] is Map) {
-      await getIt<SettingsRepository>().importAll(
-        Map<String, dynamic>.from(migrated['settings'] as Map),
+    if (migratedData.containsKey('settings') && migratedData['settings'] is Map) {
+      await settingsRepo.importAll(
+        Map<String, dynamic>.from(migratedData['settings'] as Map),
       );
     }
-    if (migrated.containsKey('gamification') && migrated['gamification'] is Map) {
-      await getIt<GamificationRepository>().importAll(
-        Map<String, dynamic>.from(migrated['gamification'] as Map),
+
+    if (migratedData.containsKey('gamification') && migratedData['gamification'] is Map) {
+      await gamificationRepo.importAll(
+        Map<String, dynamic>.from(migratedData['gamification'] as Map),
       );
     }
-    if (migrated.containsKey('schedule') && migrated['schedule'] is Map) {
-      await getIt<ScheduleRepository>().importAll(
-        Map<String, dynamic>.from(migrated['schedule'] as Map),
+
+    if (migratedData.containsKey('schedule') && migratedData['schedule'] is Map) {
+      await scheduleRepo.importAll(
+        Map<String, dynamic>.from(migratedData['schedule'] as Map),
       );
     }
-    if (migrated.containsKey('fiancee') && migrated['fiancee'] is Map) {
-      await getIt<FianceeRepository>().importAll(
-        Map<String, dynamic>.from(migrated['fiancee'] as Map),
+
+    if (migratedData.containsKey('fiancee') && migratedData['fiancee'] is Map) {
+      await fianceeRepo.importAll(
+        Map<String, dynamic>.from(migratedData['fiancee'] as Map),
       );
     }
-    if (migrated.containsKey('finance') && migrated['finance'] is Map) {
-      await getIt<FinanceRepository>().importAll(
-        Map<String, dynamic>.from(migrated['finance'] as Map),
+
+    if (migratedData.containsKey('finance') && migratedData['finance'] is Map) {
+      await financeRepo.importAll(
+        Map<String, dynamic>.from(migratedData['finance'] as Map),
       );
     }
-    if (migrated.containsKey('lifestyle') && migrated['lifestyle'] is Map) {
-      await getIt<LifestyleRepository>().importAll(
-        Map<String, dynamic>.from(migrated['lifestyle'] as Map),
+
+    if (migratedData.containsKey('lifestyle') && migratedData['lifestyle'] is Map) {
+      await lifestyleRepo.importAll(
+        Map<String, dynamic>.from(migratedData['lifestyle'] as Map),
       );
     }
   }
 
-  Map<String, dynamic> _migrateData(Map<String, dynamic> data, int currentVersion) {
+  Map<String, dynamic> _migrate(Map<String, dynamic> data, int fromVersion) {
     var migrated = Map<String, dynamic>.from(data);
-    // Migration paths for future schema changes
-    if (currentVersion < 1) {
-      // Future migration logic
+    // Migration logic across schema versions:
+    // When schemaVersion advances from 1 -> 2, transform schema here.
+    if (fromVersion < 1) {
+      // Pre-v1 normalization
     }
     return migrated;
+  }
+
+  // Convenience methods using service locator
+  Future<String> exportBackupJson() {
+    return exportAllData(
+      gamificationRepo: getIt<GamificationRepository>(),
+      scheduleRepo: getIt<ScheduleRepository>(),
+      fianceeRepo: getIt<FianceeRepository>(),
+      financeRepo: getIt<FinanceRepository>(),
+      lifestyleRepo: getIt<LifestyleRepository>(),
+      settingsRepo: getIt<SettingsRepository>(),
+    );
+  }
+
+  Future<void> importBackupJson(String jsonString) {
+    return importAllData(
+      jsonString,
+      gamificationRepo: getIt<GamificationRepository>(),
+      scheduleRepo: getIt<ScheduleRepository>(),
+      fianceeRepo: getIt<FianceeRepository>(),
+      financeRepo: getIt<FinanceRepository>(),
+      lifestyleRepo: getIt<LifestyleRepository>(),
+      settingsRepo: getIt<SettingsRepository>(),
+    );
   }
 
   Future<void> shareBackupFile() async {

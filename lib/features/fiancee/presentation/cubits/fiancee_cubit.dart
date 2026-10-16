@@ -1,8 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:uuid/uuid.dart';
 import '../../../../core/constants/app_constants.dart';
+import '../../../gamification/data/models/ledger_entry_model.dart';
 import '../../../gamification/data/repositories/gamification_repository.dart';
-import '../../../gamification/domain/entities/ledger_entry.dart';
 import '../../../../services/notification_service.dart';
 import '../../data/models/gift_note_model.dart';
 import '../../data/models/occasion_model.dart';
@@ -20,7 +19,7 @@ class FianceeCubit extends Cubit<FianceeState> {
     this._notificationService,
   ) : super(FianceeState(
           occasions: _fianceeRepository.getOccasions(),
-          notes: _fianceeRepository.getNotes(),
+          notes: _fianceeRepository.getGiftNotes(),
           isAuthenticated: false,
           isQualityTimeCompletedToday: false,
         ));
@@ -28,7 +27,7 @@ class FianceeCubit extends Cubit<FianceeState> {
   void refresh() {
     emit(state.copyWith(
       occasions: _fianceeRepository.getOccasions(),
-      notes: _fianceeRepository.getNotes(),
+      notes: _fianceeRepository.getGiftNotes(),
     ));
   }
 
@@ -38,37 +37,39 @@ class FianceeCubit extends Cubit<FianceeState> {
 
   Future<void> addOccasion(OccasionModel occasion) async {
     await _fianceeRepository.addOccasion(occasion);
-    // Schedule 3-stage notifications
-    await _notificationService.schedule3StageOccasion(
-      baseId: occasion.id.hashCode & 0x3FFFFFFF,
-      name: occasion.title,
-      occasionDate: occasion.date,
+    // Schedule 3-stage occasion alerts
+    await _notificationService.scheduleOccasionAlerts(
+      occasionId: occasion.id,
+      occasionName: occasion.name,
+      occasionDate: occasion.nextOccurrence,
     );
     refresh();
   }
 
   Future<void> deleteOccasion(String id) async {
+    await _notificationService.cancelOccasionAlerts(id);
     await _fianceeRepository.deleteOccasion(id);
     refresh();
   }
 
   Future<void> addNote(GiftNoteModel note) async {
-    await _fianceeRepository.addNote(note);
+    await _fianceeRepository.addGiftNote(note);
     refresh();
   }
 
   Future<void> deleteNote(String id) async {
-    await _fianceeRepository.deleteNote(id);
+    await _fianceeRepository.deleteGiftNote(id);
     refresh();
   }
 
   Future<void> completeQualityTime() async {
-    await _gamificationRepository.addLedgerEntry(LedgerEntry(
-      id: const Uuid().v4(),
+    final now = DateTime.now();
+    await _fianceeRepository.addQualityTimeLog(now);
+    await _gamificationRepository.addLedgerEntry(LedgerEntryModel(
       points: AppConstants.qualityTimePoints,
       reason: 'Fiancée Quality Time',
       sourceFeature: 'fiancee',
-      timestamp: DateTime.now(),
+      timestamp: now,
     ));
     emit(state.copyWith(isQualityTimeCompletedToday: true));
   }

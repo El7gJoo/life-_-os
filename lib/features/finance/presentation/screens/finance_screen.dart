@@ -7,7 +7,7 @@ import '../../../../core/utils/haptic_utils.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../cubits/finance_cubit.dart';
 import '../cubits/finance_state.dart';
-import '../data/models/expense_model.dart';
+import '../../data/models/expense_model.dart';
 
 class FinanceScreen extends StatelessWidget {
   const FinanceScreen({super.key});
@@ -133,12 +133,12 @@ class FinanceScreen extends StatelessWidget {
                     margin: const EdgeInsets.only(bottom: 8),
                     child: ListTile(
                       leading: CircleAvatar(
-                        backgroundColor: AppColors.emeraldGreenLight.withOpacity(0.15),
+                        backgroundColor: AppColors.emeraldGreenLight.withValues(alpha: 0.15),
                         child: const Icon(Icons.attach_money, color: AppColors.emeraldGreenLight),
                       ),
                       title: Text(expense.category.toUpperCase()),
                       subtitle: Text(
-                        '${DateFormat('hh:mm a').format(expense.timestamp)}${expense.note.isNotEmpty ? ' • ${expense.note}' : ''}',
+                        '${DateFormat('hh:mm a').format(expense.timestamp)}${expense.note != null && expense.note!.isNotEmpty ? ' • ${expense.note}' : ''}',
                       ),
                       trailing: Text(
                         '-${expense.amount.toStringAsFixed(1)} ${state.currency}',

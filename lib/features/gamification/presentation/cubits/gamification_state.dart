@@ -1,17 +1,17 @@
 import 'package:equatable/equatable.dart';
 import '../../data/models/claimed_reward_model.dart';
-import '../../domain/entities/ledger_entry.dart';
-import '../../domain/entities/reward.dart';
+import '../../data/models/ledger_entry_model.dart';
+import '../../data/models/reward_model.dart';
 
 class GamificationState extends Equatable {
   final int currentPoints;
   final int totalLifetimePoints;
   final int currentStreakDays;
   final double activeMultiplier;
-  final List<Reward> rewards;
+  final List<RewardModel> rewards;
   final List<ClaimedRewardModel> claimedRewards;
-  final List<LedgerEntry> ledgerEntries;
-  final Reward? lastUnlockedReward;
+  final List<LedgerEntryModel> ledgerEntries;
+  final RewardModel? lastUnlockedReward;
 
   const GamificationState({
     required this.currentPoints,
@@ -29,10 +29,10 @@ class GamificationState extends Equatable {
     int? totalLifetimePoints,
     int? currentStreakDays,
     double? activeMultiplier,
-    List<Reward>? rewards,
+    List<RewardModel>? rewards,
     List<ClaimedRewardModel>? claimedRewards,
-    List<LedgerEntry>? ledgerEntries,
-    Reward? lastUnlockedReward,
+    List<LedgerEntryModel>? ledgerEntries,
+    RewardModel? lastUnlockedReward,
     bool clearLastUnlockedReward = false,
   }) {
     return GamificationState(

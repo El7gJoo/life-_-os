@@ -24,6 +24,7 @@ import 'features/settings_backup/presentation/cubits/settings_state.dart';
 import 'features/settings_backup/presentation/screens/settings_screen.dart';
 import 'features/stats/presentation/screens/stats_screen.dart';
 import 'l10n/app_localizations.dart';
+import 'features/gamification/data/repositories/gamification_repository.dart';
 import 'services/notification_service.dart';
 
 Future<void> main() async {
@@ -50,6 +51,9 @@ Future<void> main() async {
 
   // Setup DI
   await setupDependencies();
+
+  // Seed default rewards if first launch
+  await getIt<GamificationRepository>().seedDefaultRewards();
 
   // Initialize notifications
   await getIt<NotificationService>().initialize();

@@ -2,14 +2,14 @@ import 'package:confetti/confetti.dart';
 import 'package:flutter/material.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../l10n/app_localizations.dart';
-import '../../domain/entities/reward.dart';
+import '../../data/models/reward_model.dart';
 
 class RewardDialog extends StatefulWidget {
-  final Reward reward;
+  final RewardModel reward;
 
   const RewardDialog({super.key, required this.reward});
 
-  static Future<void> show(BuildContext context, Reward reward) {
+  static Future<void> show(BuildContext context, RewardModel reward) {
     return showDialog(
       context: context,
       barrierDismissible: false,
@@ -68,7 +68,7 @@ class _RewardDialogState extends State<RewardDialog> {
                 Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: tierColor.withOpacity(0.15),
+                    color: tierColor.withValues(alpha: 0.15),
                     shape: BoxShape.circle,
                   ),
                   child: Icon(Icons.emoji_events, size: 64, color: tierColor),
@@ -88,21 +88,13 @@ class _RewardDialogState extends State<RewardDialog> {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  widget.reward.title,
+                  widget.reward.name,
                   style: theme.textTheme.titleLarge?.copyWith(
                     fontWeight: FontWeight.w700,
                     color: AppColors.primary,
                   ),
                   textAlign: TextAlign.center,
                 ),
-                if (widget.reward.description.isNotEmpty) ...[
-                  const SizedBox(height: 8),
-                  Text(
-                    widget.reward.description,
-                    style: theme.textTheme.bodyMedium,
-                    textAlign: TextAlign.center,
-                  ),
-                ],
                 const SizedBox(height: 24),
                 SizedBox(
                   width: double.infinity,

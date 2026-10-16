@@ -1,50 +1,56 @@
-import '../core/di/injection.dart';
 import '../features/gamification/data/repositories/gamification_repository.dart';
-import '../features/schedule_study/data/models/schedule_item_model.dart';
 import '../features/schedule_study/data/repositories/schedule_repository.dart';
 
 class WidgetDataProvider {
-  int getPointsBalance() {
-    return getIt<GamificationRepository>().getCurrentPoints();
+  int currentPoints = 0;
+  int remainingTasksCount = 0;
+  String? nextTaskTitle;
+  DateTime? nextTaskTime;
+
+  void update({
+    required int points,
+    required int remainingTasks,
+    String? nextTask,
+    DateTime? nextTime,
+  }) {
+    currentPoints = points;
+    remainingTasksCount = remainingTasks;
+    nextTaskTitle = nextTask;
+    nextTaskTime = nextTime;
+    // In future: call home_widget to update widget
   }
 
-  int getRemainingTasksCount() {
+  void updateFromRepositories({
+    required GamificationRepository gamificationRepo,
+    required ScheduleRepository scheduleRepo,
+  }) {
+    final points = gamificationRepo.getCurrentPoints();
     final now = DateTime.now();
-    final items = getIt<ScheduleRepository>().getItems();
-    return items.where((i) {
-      return !i.isCompleted &&
-          i.startTime.year == now.year &&
-          i.startTime.month == now.month &&
-          i.startTime.day == now.day;
-    }).length;
+    final todayTasks = scheduleRepo.getItemsForDate(now);
+    final remaining = todayTasks.where((t) => !t.isCompleted).toList();
+
+    String? nextTitle;
+    DateTime? nextTime;
+
+    if (remaining.isNotEmpty) {
+      remaining.sort((a, b) => a.startTime.compareTo(b.startTime));
+      final next = remaining.first;
+      nextTitle = next.title;
+      nextTime = next.startTime;
+    }
+
+    update(
+      points: points,
+      remainingTasks: remaining.length,
+      nextTask: nextTitle,
+      nextTime: nextTime,
+    );
   }
 
-  ScheduleItemModel? getNextTask() {
-    final now = DateTime.now();
-    final items = getIt<ScheduleRepository>().getItems();
-    final remaining = items.where((i) {
-      return !i.isCompleted &&
-          i.startTime.year == now.year &&
-          i.startTime.month == now.month &&
-          i.startTime.day == now.day &&
-          i.startTime.isAfter(now);
-    }).toList();
-
-    if (remaining.isEmpty) return null;
-    remaining.sort((a, b) => a.startTime.compareTo(b.startTime));
-    return remaining.first;
-  }
-
-  Map<String, dynamic> getWidgetDataPayload() {
-    final next = getNextTask();
-    return {
-      'pointsBalance': getPointsBalance(),
-      'remainingTasksCount': getRemainingTasksCount(),
-      'nextTaskTitle': next?.title ?? 'No more tasks today',
-      'nextTaskTime': next != null
-          ? '${next.startTime.hour.toString().padLeft(2, '0')}:${next.startTime.minute.toString().padLeft(2, '0')}'
-          : '',
-      'updatedAt': DateTime.now().toIso8601String(),
-    };
-  }
+  Map<String, dynamic> toJson() => {
+        'currentPoints': currentPoints,
+        'remainingTasksCount': remainingTasksCount,
+        'nextTaskTitle': nextTaskTitle,
+        'nextTaskTime': nextTaskTime?.toIso8601String(),
+      };
 }

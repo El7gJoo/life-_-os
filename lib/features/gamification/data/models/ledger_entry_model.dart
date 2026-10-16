@@ -1,23 +1,24 @@
-import '../../domain/entities/ledger_entry.dart';
+import 'package:uuid/uuid.dart';
 
 class LedgerEntryModel {
   final String id;
-  final int points;
+  final int points; // positive = earned, negative = spent
   final String reason;
-  final String sourceFeature;
+  final String sourceFeature; // 'gamification','schedule','finance','lifestyle','fiancee'
   final DateTime timestamp;
   final bool isReversal;
-  final String? relatedEntryId;
+  final String? reversalOf; // id of the entry this reverses
 
   LedgerEntryModel({
-    required this.id,
+    String? id,
     required this.points,
     required this.reason,
     required this.sourceFeature,
-    required this.timestamp,
+    DateTime? timestamp,
     this.isReversal = false,
-    this.relatedEntryId,
-  });
+    this.reversalOf,
+  })  : id = id ?? const Uuid().v4(),
+        timestamp = timestamp ?? DateTime.now();
 
   Map<String, dynamic> toJson() => {
         'id': id,
@@ -26,37 +27,36 @@ class LedgerEntryModel {
         'sourceFeature': sourceFeature,
         'timestamp': timestamp.toIso8601String(),
         'isReversal': isReversal,
-        'relatedEntryId': relatedEntryId,
+        'reversalOf': reversalOf,
       };
 
-  factory LedgerEntryModel.fromJson(Map<dynamic, dynamic> json) =>
+  factory LedgerEntryModel.fromJson(Map<String, dynamic> json) =>
       LedgerEntryModel(
         id: json['id'] as String,
-        points: json['points'] as int? ?? 0,
-        reason: json['reason'] as String? ?? '',
-        sourceFeature: json['sourceFeature'] as String? ?? '',
+        points: json['points'] as int,
+        reason: json['reason'] as String,
+        sourceFeature: json['sourceFeature'] as String,
         timestamp: DateTime.parse(json['timestamp'] as String),
         isReversal: json['isReversal'] as bool? ?? false,
-        relatedEntryId: json['relatedEntryId'] as String?,
+        reversalOf: json['reversalOf'] as String?,
       );
 
-  LedgerEntry toEntity() => LedgerEntry(
-        id: id,
-        points: points,
-        reason: reason,
-        sourceFeature: sourceFeature,
-        timestamp: timestamp,
-        isReversal: isReversal,
-        relatedEntryId: relatedEntryId,
-      );
-
-  factory LedgerEntryModel.fromEntity(LedgerEntry entity) => LedgerEntryModel(
-        id: entity.id,
-        points: entity.points,
-        reason: entity.reason,
-        sourceFeature: entity.sourceFeature,
-        timestamp: entity.timestamp,
-        isReversal: entity.isReversal,
-        relatedEntryId: entity.relatedEntryId,
+  LedgerEntryModel copyWith({
+    String? id,
+    int? points,
+    String? reason,
+    String? sourceFeature,
+    DateTime? timestamp,
+    bool? isReversal,
+    String? reversalOf,
+  }) =>
+      LedgerEntryModel(
+        id: id ?? this.id,
+        points: points ?? this.points,
+        reason: reason ?? this.reason,
+        sourceFeature: sourceFeature ?? this.sourceFeature,
+        timestamp: timestamp ?? this.timestamp,
+        isReversal: isReversal ?? this.isReversal,
+        reversalOf: reversalOf ?? this.reversalOf,
       );
 }
