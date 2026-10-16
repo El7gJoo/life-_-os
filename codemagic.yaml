@@ -8,21 +8,27 @@ workflows:
       xcode: latest
       cocoapods: default
     scripts:
-      - name: Set up Flutter dependencies
+      - name: Disable Swift Package Manager
         script: |
-          flutter packages pub get
+          flutter config --no-enable-swift-package-manager
+      - name: Clean build and CocoaPods
+        script: |
+          flutter clean
+          rm -rf ios/Pods ios/Podfile.lock ios/.symlinks
+      - name: Get Flutter dependencies
+        script: |
+          flutter pub get
       - name: Generate Localizations
         script: |
           flutter gen-l10n
-      - name: Run Static Analysis & Tests
+      - name: Run Static Analysis and Tests
         script: |
           flutter analyze
           flutter test --no-pub
-      - name: Install Pods
+      - name: Install CocoaPods dependencies
         script: |
           cd ios
           pod install --repo-update
-          cd ..
       - name: Build Unsigned iOS Release
         script: |
           flutter build ios --release --no-codesign
