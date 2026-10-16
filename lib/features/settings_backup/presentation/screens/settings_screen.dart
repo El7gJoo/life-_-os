@@ -1,25 +1,34 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/di/injection.dart';
 import '../../../../core/theme/theme_cubit.dart';
+import '../../../../core/utils/rtl_utils.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../../services/mock_data_seeder.dart';
 import '../../../../services/storage_service.dart';
 import '../../../fiancee/data/repositories/fiancee_repository.dart';
 import '../../../fiancee/presentation/cubits/fiancee_cubit.dart';
 import '../../../finance/data/repositories/finance_repository.dart';
+import '../../../finance/presentation/cubits/finance_cubit.dart';
 import '../../../gamification/data/repositories/gamification_repository.dart';
 import '../../../gamification/presentation/cubits/gamification_cubit.dart';
 import '../../../lifestyle/data/repositories/lifestyle_repository.dart';
 import '../../../lifestyle/presentation/cubits/lifestyle_cubit.dart';
 import '../../../schedule_study/data/repositories/schedule_repository.dart';
 import '../../../schedule_study/presentation/cubits/schedule_cubit.dart';
+import '../../data/repositories/settings_repository.dart';
 import '../cubits/settings_cubit.dart';
 import '../cubits/settings_state.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
+
+  String _formatHour(int hour, String locale) {
+    final dt = DateTime(2026, 1, 1, hour, 0);
+    return DateFormat('h:mm a', locale).format(dt);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -69,15 +78,15 @@ class SettingsScreen extends StatelessWidget {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text(
-                              'iOS Sideload Backup Reminder',
-                              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                            Text(
+                              l10n.sideloadBackupReminder,
+                              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
                             ),
                             const SizedBox(height: 2),
                             Text(
                               daysSinceBackup == null
-                                  ? 'Export backup weekly to protect your data across 7-day sideload certificates (AltStore/SideStore).'
-                                  : 'Last backup: $daysSinceBackup day${daysSinceBackup == 1 ? "" : "s"} ago. ${daysSinceBackup >= 5 ? "⚠️ Refresh certificate & backup recommended!" : "Backup is fresh."}',
+                                  ? l10n.sideloadBackupReminderDesc
+                                  : '${l10n.lastBackupLabel(RtlUtils.ltr('$daysSinceBackup days ago'))} ${daysSinceBackup >= 5 ? l10n.backupRecommended : l10n.backupFresh}',
                               style: theme.textTheme.bodySmall?.copyWith(color: Colors.grey[700]),
                             ),
                           ],
@@ -92,7 +101,7 @@ class SettingsScreen extends StatelessWidget {
 
               // Preferences Section
               Text(
-                'Preferences',
+                l10n.preferences,
                 style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 8),
@@ -146,9 +155,11 @@ class SettingsScreen extends StatelessWidget {
                 child: ListTile(
                   leading: const Icon(Icons.access_time, color: AppColors.primary),
                   title: Text(l10n.dayBoundary),
-                  subtitle: Text('${state.dayBoundaryHour}:00 AM (Default 4 AM)'),
+                  subtitle: Text(
+                    '${_formatHour(state.dayBoundaryHour, state.languageCode)} (${l10n.dayBoundaryHint})',
+                  ),
                   trailing: const Icon(Icons.chevron_right),
-                  onTap: () => _showDayBoundaryDialog(context, state.dayBoundaryHour),
+                  onTap: () => _showDayBoundaryDialog(context, state),
                 ),
               ),
 
@@ -161,7 +172,7 @@ class SettingsScreen extends StatelessWidget {
                   title: Text(l10n.prepTime),
                   subtitle: Text(l10n.prepTimeMinutes(state.prepTimeMinutes)),
                   trailing: const Icon(Icons.chevron_right),
-                  onTap: () => _showPrepTimeDialog(context, state.prepTimeMinutes),
+                  onTap: () => _showPrepTimeDialog(context, state),
                 ),
               ),
 
@@ -174,7 +185,7 @@ class SettingsScreen extends StatelessWidget {
                   title: Text(l10n.currency),
                   subtitle: Text(state.currency),
                   trailing: const Icon(Icons.chevron_right),
-                  onTap: () => _showCurrencyDialog(context, state.currency),
+                  onTap: () => _showCurrencyDialog(context, state),
                 ),
               ),
 
@@ -210,8 +221,8 @@ class SettingsScreen extends StatelessWidget {
                       title: Text(l10n.exportData),
                       subtitle: Text(
                         state.lastBackupDate != null
-                            ? 'Last backup: ${state.lastBackupDate!.month}/${state.lastBackupDate!.day} at ${state.lastBackupDate!.hour}:${state.lastBackupDate!.minute.toString().padLeft(2, '0')}'
-                            : 'No backup performed yet',
+                            ? l10n.lastBackupLabel(DateFormat('yyyy/MM/dd HH:mm').format(state.lastBackupDate!))
+                            : l10n.noBackupYet,
                       ),
                       trailing: ElevatedButton(
                         onPressed: () => _handleExportData(context),
@@ -222,7 +233,7 @@ class SettingsScreen extends StatelessWidget {
                     ListTile(
                       leading: const Icon(Icons.file_download_outlined, color: AppColors.primary),
                       title: Text(l10n.importData),
-                      subtitle: const Text('Restore all boxes from JSON backup file'),
+                      subtitle: Text(l10n.restoreJsonDesc),
                       trailing: TextButton(
                         onPressed: () => _handleImportData(context),
                         child: Text(l10n.restore),
@@ -236,7 +247,7 @@ class SettingsScreen extends StatelessWidget {
 
               // Developer & Mock Data
               Text(
-                'Developer Tools',
+                l10n.devTools,
                 style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 8),
@@ -244,14 +255,14 @@ class SettingsScreen extends StatelessWidget {
               Card(
                 child: ListTile(
                   leading: const Icon(Icons.science_outlined, color: AppColors.neonEnergyLight),
-                  title: const Text('Seed Mock Data'),
-                  subtitle: const Text('Fill all modules with sample test data'),
+                  title: Text(l10n.seedMockData),
+                  subtitle: Text(l10n.seedMockDataDesc),
                   trailing: ElevatedButton(
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.neonEnergyLight,
                     ),
                     onPressed: () => _seedMockData(context),
-                    child: const Text('Seed Data', style: TextStyle(color: Colors.white)),
+                    child: Text(l10n.seedDataButton, style: const TextStyle(color: Colors.white)),
                   ),
                 ),
               ),
@@ -262,19 +273,20 @@ class SettingsScreen extends StatelessWidget {
     );
   }
 
-  void _showDayBoundaryDialog(BuildContext context, int currentHour) {
-    int selected = currentHour;
+  void _showDayBoundaryDialog(BuildContext context, SettingsState state) {
+    final l10n = AppLocalizations.of(context);
+    int selected = state.dayBoundaryHour;
     showDialog(
       context: context,
       builder: (dialogCtx) => StatefulBuilder(
         builder: (context, setDialogState) => AlertDialog(
-          title: const Text('Day Boundary Hour'),
+          title: Text(l10n.dayBoundaryHourTitle),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Text(
-                'Select when your productivity day flips (e.g. 4:00 AM allows night owls to finish tasks before next day resets).',
-                style: TextStyle(fontSize: 13, color: Colors.grey),
+              Text(
+                l10n.dayBoundaryDesc,
+                style: const TextStyle(fontSize: 13, color: Colors.grey),
               ),
               const SizedBox(height: 16),
               DropdownButtonFormField<int>(
@@ -282,9 +294,10 @@ class SettingsScreen extends StatelessWidget {
                 decoration: const InputDecoration(border: OutlineInputBorder()),
                 items: List.generate(12, (index) {
                   final hour = index + 1;
+                  final formatted = _formatHour(hour, state.languageCode);
                   return DropdownMenuItem(
                     value: hour,
-                    child: Text('$hour:00 AM ${hour == 4 ? "(Recommended)" : ""}'),
+                    child: Text('$formatted ${hour == 4 ? "(${l10n.recommended})" : ""}'),
                   );
                 }),
                 onChanged: (val) {
@@ -296,14 +309,14 @@ class SettingsScreen extends StatelessWidget {
           actions: [
             TextButton(
               onPressed: () => Navigator.of(dialogCtx).pop(),
-              child: const Text('Cancel'),
+              child: Text(l10n.cancel),
             ),
             ElevatedButton(
               onPressed: () {
                 dialogCtx.read<SettingsCubit>().setDayBoundaryHour(selected);
                 Navigator.of(dialogCtx).pop();
               },
-              child: const Text('Save'),
+              child: Text(l10n.save),
             ),
           ],
         ),
@@ -311,31 +324,32 @@ class SettingsScreen extends StatelessWidget {
     );
   }
 
-  void _showPrepTimeDialog(BuildContext context, int currentMinutes) {
-    int selected = currentMinutes;
+  void _showPrepTimeDialog(BuildContext context, SettingsState state) {
+    final l10n = AppLocalizations.of(context);
+    int selected = state.prepTimeMinutes;
     showDialog(
       context: context,
       builder: (dialogCtx) => StatefulBuilder(
         builder: (context, setDialogState) => AlertDialog(
-          title: const Text('Preparation & Commute Time'),
+          title: Text(l10n.prepTimeCommuteTitle),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Text(
-                'How many minutes you need before your first morning lecture or task.',
-                style: TextStyle(fontSize: 13, color: Colors.grey),
+              Text(
+                l10n.prepTimeCommuteDesc,
+                style: const TextStyle(fontSize: 13, color: Colors.grey),
               ),
               const SizedBox(height: 16),
               DropdownButtonFormField<int>(
                 initialValue: selected,
                 decoration: const InputDecoration(border: OutlineInputBorder()),
-                items: const [
-                  DropdownMenuItem(value: 30, child: Text('30 minutes')),
-                  DropdownMenuItem(value: 45, child: Text('45 minutes')),
-                  DropdownMenuItem(value: 60, child: Text('60 minutes (1 hour - Default)')),
-                  DropdownMenuItem(value: 75, child: Text('75 minutes')),
-                  DropdownMenuItem(value: 90, child: Text('90 minutes (1.5 hours)')),
-                  DropdownMenuItem(value: 120, child: Text('120 minutes (2 hours)')),
+                items: [
+                  DropdownMenuItem(value: 30, child: Text(l10n.minutesCount(30))),
+                  DropdownMenuItem(value: 45, child: Text(l10n.minutesCount(45))),
+                  DropdownMenuItem(value: 60, child: Text('${l10n.minutesCount(60)} (${l10n.recommended})')),
+                  DropdownMenuItem(value: 75, child: Text(l10n.minutesCount(75))),
+                  DropdownMenuItem(value: 90, child: Text(l10n.minutesCount(90))),
+                  DropdownMenuItem(value: 120, child: Text(l10n.minutesCount(120))),
                 ],
                 onChanged: (val) {
                   if (val != null) setDialogState(() => selected = val);
@@ -346,14 +360,14 @@ class SettingsScreen extends StatelessWidget {
           actions: [
             TextButton(
               onPressed: () => Navigator.of(dialogCtx).pop(),
-              child: const Text('Cancel'),
+              child: Text(l10n.cancel),
             ),
             ElevatedButton(
               onPressed: () {
                 dialogCtx.read<SettingsCubit>().setPrepTimeMinutes(selected);
                 Navigator.of(dialogCtx).pop();
               },
-              child: const Text('Save'),
+              child: Text(l10n.save),
             ),
           ],
         ),
@@ -361,13 +375,14 @@ class SettingsScreen extends StatelessWidget {
     );
   }
 
-  void _showCurrencyDialog(BuildContext context, String currentCurrency) {
-    String selected = currentCurrency;
+  void _showCurrencyDialog(BuildContext context, SettingsState state) {
+    final l10n = AppLocalizations.of(context);
+    String selected = state.currency;
     showDialog(
       context: context,
       builder: (dialogCtx) => StatefulBuilder(
         builder: (context, setDialogState) => AlertDialog(
-          title: const Text('Currency'),
+          title: Text(l10n.currency),
           content: DropdownButtonFormField<String>(
             initialValue: selected,
             decoration: const InputDecoration(border: OutlineInputBorder()),
@@ -387,14 +402,14 @@ class SettingsScreen extends StatelessWidget {
           actions: [
             TextButton(
               onPressed: () => Navigator.of(dialogCtx).pop(),
-              child: const Text('Cancel'),
+              child: Text(l10n.cancel),
             ),
             ElevatedButton(
               onPressed: () {
                 dialogCtx.read<SettingsCubit>().setCurrency(selected);
                 Navigator.of(dialogCtx).pop();
               },
-              child: const Text('Save'),
+              child: Text(l10n.save),
             ),
           ],
         ),
@@ -403,44 +418,45 @@ class SettingsScreen extends StatelessWidget {
   }
 
   Future<void> _handleExportData(BuildContext context) async {
+    final l10n = AppLocalizations.of(context);
     final messenger = ScaffoldMessenger.of(context);
     final settingsCubit = context.read<SettingsCubit>();
     try {
       await getIt<StorageService>().shareBackupFile();
       await settingsCubit.setLastBackupDate(DateTime.now());
       messenger.showSnackBar(
-        const SnackBar(content: Text('Backup exported successfully!')),
+        SnackBar(content: Text(l10n.backupExportedSuccess)),
       );
     } catch (e) {
       messenger.showSnackBar(
-        SnackBar(content: Text('Export failed: $e')),
+        SnackBar(content: Text(l10n.exportFailed(e.toString()))),
       );
     }
   }
 
   Future<void> _handleImportData(BuildContext context) async {
+    final l10n = AppLocalizations.of(context);
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (_) => AlertDialog(
-        title: const Text('Restore Backup?'),
-        content: const Text(
-          'Restoring data from a backup file will replace current local data with the backup contents. Do you want to proceed?',
-        ),
+        title: Text(l10n.restoreConfirmTitle),
+        content: Text(l10n.restoreConfirmDesc),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Cancel'),
+            child: Text(l10n.cancel),
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(backgroundColor: AppColors.warning),
             onPressed: () => Navigator.of(context).pop(true),
-            child: const Text('Proceed', style: TextStyle(color: Colors.white)),
+            child: Text(l10n.proceed, style: const TextStyle(color: Colors.white)),
           ),
         ],
       ),
     );
 
     if (confirmed == true && context.mounted) {
+      final messenger = ScaffoldMessenger.of(context);
       try {
         final success = await getIt<StorageService>().restoreFromFile();
         if (success && context.mounted) {
@@ -448,23 +464,25 @@ class SettingsScreen extends StatelessWidget {
           context.read<GamificationCubit>().refresh();
           context.read<ScheduleCubit>().refresh();
           context.read<FianceeCubit>().refresh();
+          context.read<FinanceCubit>().refresh();
           context.read<LifestyleCubit>().refresh();
+          context.read<SettingsCubit>().refresh();
 
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Backup restored successfully!')),
+          messenger.showSnackBar(
+            SnackBar(content: Text(l10n.backupRestoredSuccess)),
           );
         }
       } catch (e) {
-        if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Restore failed: $e')),
-          );
-        }
+        messenger.showSnackBar(
+          SnackBar(content: Text(l10n.restoreFailed(e.toString()))),
+        );
       }
     }
   }
 
   Future<void> _seedMockData(BuildContext context) async {
+    final l10n = AppLocalizations.of(context);
+    final messenger = ScaffoldMessenger.of(context);
     try {
       await MockDataSeeder().seedAll(
         gamificationRepo: getIt<GamificationRepository>(),
@@ -472,24 +490,25 @@ class SettingsScreen extends StatelessWidget {
         fianceeRepo: getIt<FianceeRepository>(),
         financeRepo: getIt<FinanceRepository>(),
         lifestyleRepo: getIt<LifestyleRepository>(),
+        settingsRepo: getIt<SettingsRepository>(),
       );
 
       if (context.mounted) {
         context.read<GamificationCubit>().refresh();
         context.read<ScheduleCubit>().refresh();
         context.read<FianceeCubit>().refresh();
+        context.read<FinanceCubit>().refresh();
         context.read<LifestyleCubit>().refresh();
+        context.read<SettingsCubit>().refresh();
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Mock test data seeded successfully!')),
+        messenger.showSnackBar(
+          SnackBar(content: Text(l10n.mockDataSeededSuccess)),
         );
       }
     } catch (e) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Seeding failed: $e')),
-        );
-      }
+      messenger.showSnackBar(
+        SnackBar(content: Text(l10n.seedingFailed(e.toString()))),
+      );
     }
   }
 }

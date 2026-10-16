@@ -24,6 +24,7 @@ class AppConstants {
   static const String savingsVaultKey = 'savings_vault';
   static const String streakFreezeWeekKey = 'streak_freeze_week';
   static const String lastBackupKey = 'last_backup_date';
+  static const String lastRolloverKey = 'last_rollover_date';
   
   // Defaults
   static const int defaultDayBoundaryHour = 4;

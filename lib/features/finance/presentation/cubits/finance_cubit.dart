@@ -1,5 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/constants/app_constants.dart';
+import '../../../../core/utils/date_utils.dart';
 import '../../../gamification/data/models/ledger_entry_model.dart';
 import '../../../gamification/data/repositories/gamification_repository.dart';
 import '../../../settings_backup/data/repositories/settings_repository.dart';
@@ -25,6 +26,10 @@ class FinanceCubit extends Cubit<FinanceState> {
           weeklyBudget: _settingsRepository.getWeeklyBudget(),
           monthlyBudget: _settingsRepository.getMonthlyBudget(),
         )) {
+    _recalculate();
+  }
+
+  void refresh() {
     _recalculate();
   }
 
@@ -57,6 +62,21 @@ class FinanceCubit extends Cubit<FinanceState> {
       alert = 'You have used $pct% of your monthly budget';
     }
 
+    // Determine rollover eligibility
+    RolloverEligibility eligibility;
+    if (starting <= 0) {
+      eligibility = RolloverEligibility.zeroBalance;
+    } else if (remaining < 0) {
+      eligibility = RolloverEligibility.budgetExceeded;
+    } else {
+      final lastRollover = _settingsRepository.getLastRolloverDate();
+      if (lastRollover != null && AppDateUtils.isSameLogicalDay(lastRollover, now, dayBoundary)) {
+        eligibility = RolloverEligibility.alreadyCompletedToday;
+      } else {
+        eligibility = RolloverEligibility.eligible;
+      }
+    }
+
     emit(state.copyWith(
       expenses: expenses,
       startingBalance: starting,
@@ -68,6 +88,7 @@ class FinanceCubit extends Cubit<FinanceState> {
       weeklySpent: weeklySpent,
       monthlySpent: monthlySpent,
       budgetAlert: alert,
+      rolloverEligibility: eligibility,
     ));
   }
 
@@ -97,24 +118,28 @@ class FinanceCubit extends Cubit<FinanceState> {
   }
 
   Future<void> closeDayRollover({required bool rollToSavings}) async {
-    if (state.remainingPocket >= 0) {
-      // Award +15 points
-      await _gamificationRepository.addLedgerEntry(LedgerEntryModel(
-        points: AppConstants.endOfDayRolloverPoints,
-        reason: 'Budget Under Limit Bonus',
-        sourceFeature: 'finance',
-        timestamp: DateTime.now(),
-      ));
-
-      if (rollToSavings) {
-        final currentSavings = _settingsRepository.getSavingsVault();
-        await _settingsRepository.setSavingsVault(currentSavings + state.remainingPocket);
-        await _settingsRepository.setStartingBalance(0.0);
-      } else {
-        // Roll to tomorrow's starting balance
-        await _settingsRepository.setStartingBalance(state.remainingPocket);
-      }
-      _recalculate();
+    if (!state.canRollover) {
+      return;
     }
+
+    // Award +15 points
+    await _gamificationRepository.addLedgerEntry(LedgerEntryModel(
+      points: AppConstants.endOfDayRolloverPoints,
+      reason: 'Budget Under Limit Bonus',
+      sourceFeature: 'finance',
+      timestamp: DateTime.now(),
+    ));
+
+    if (rollToSavings) {
+      final currentSavings = _settingsRepository.getSavingsVault();
+      await _settingsRepository.setSavingsVault(currentSavings + state.remainingPocket);
+      await _settingsRepository.setStartingBalance(0.0);
+    } else {
+      // Roll to tomorrow's starting balance
+      await _settingsRepository.setStartingBalance(state.remainingPocket);
+    }
+
+    await _settingsRepository.setLastRolloverDate(DateTime.now());
+    _recalculate();
   }
 }

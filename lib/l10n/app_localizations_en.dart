@@ -336,6 +336,9 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get budgetWarning => 'Budget Warning';
+
+  @override
   String get rolloverSavings => 'Roll to Savings Vault';
 
   @override
@@ -536,4 +539,476 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get checkTasks => 'Check your remaining tasks';
+
+  @override
+  String get all => 'All';
+
+  @override
+  String get giftIdeas => 'Gift Ideas 🎁';
+
+  @override
+  String get sheLikes => 'She Likes ✨';
+
+  @override
+  String get notesCategory => 'Notes 📝';
+
+  @override
+  String pointsDailyReward(int points) {
+    return '+$points points daily reward';
+  }
+
+  @override
+  String get qualityTimeSuccess => 'Quality Time logged! +15 points earned ❤️';
+
+  @override
+  String deleteOccasionConfirm(String name) {
+    return 'Delete occasion \"$name\"? Scheduled notifications will also be cancelled.';
+  }
+
+  @override
+  String get noBackupYet => 'No backup performed yet';
+
+  @override
+  String lastBackupLabel(String time) {
+    return 'Last backup: $time';
+  }
+
+  @override
+  String get restoreJsonDesc => 'Restore all boxes from JSON backup file';
+
+  @override
+  String get devTools => 'Developer Tools';
+
+  @override
+  String get seedMockData => 'Seed Mock Data';
+
+  @override
+  String get seedMockDataDesc => 'Fill all modules with sample test data';
+
+  @override
+  String get seedDataButton => 'Seed Data';
+
+  @override
+  String get mockDataSeededSuccess => 'Mock test data seeded successfully!';
+
+  @override
+  String get sideloadBackupReminder => 'iOS Sideload Backup Reminder';
+
+  @override
+  String get sideloadBackupReminderDesc =>
+      'Export backup weekly to protect your data across 7-day sideload certificates (AltStore/SideStore).';
+
+  @override
+  String get backupFresh => 'Backup is fresh.';
+
+  @override
+  String get backupRecommended =>
+      '⚠️ Refresh certificate & backup recommended!';
+
+  @override
+  String get preferences => 'Preferences';
+
+  @override
+  String get recommended => 'Recommended';
+
+  @override
+  String get restoreConfirmTitle => 'Restore Backup?';
+
+  @override
+  String get restoreConfirmDesc =>
+      'Restoring data from a backup file will replace current local data with the backup contents. Do you want to proceed?';
+
+  @override
+  String get proceed => 'Proceed';
+
+  @override
+  String get backupExportedSuccess => 'Backup exported successfully!';
+
+  @override
+  String get backupRestoredSuccess => 'Backup restored successfully!';
+
+  @override
+  String exportFailed(String error) {
+    return 'Export failed: $error';
+  }
+
+  @override
+  String restoreFailed(String error) {
+    return 'Restore failed: $error';
+  }
+
+  @override
+  String seedingFailed(String error) {
+    return 'Seeding failed: $error';
+  }
+
+  @override
+  String get dayBoundaryHourTitle => 'Day Boundary Hour';
+
+  @override
+  String get dayBoundaryDesc =>
+      'Select when your productivity day flips (e.g. 4:00 AM allows night owls to finish tasks before next day resets).';
+
+  @override
+  String recordsCount(int count) {
+    return '$count records';
+  }
+
+  @override
+  String get endOfDayRolloverBonus => 'End-of-Day Rollover (+15 pts)';
+
+  @override
+  String get rolloverDisabledZero => 'Starting balance must be greater than 0';
+
+  @override
+  String get rolloverDisabledAlready => 'Rollover already completed today';
+
+  @override
+  String get rolloverDisabledDeficit => 'Daily budget was exceeded';
+
+  @override
+  String rolloverDialogContent(String amount, String currency) {
+    return 'You have $amount $currency remaining.\n\nChoose how you want to handle your leftover balance:';
+  }
+
+  @override
+  String get keepForTomorrow => 'Keep for Tomorrow';
+
+  @override
+  String get sendToSavingsVault => 'Send to Savings Vault';
+
+  @override
+  String get rolledToTomorrowSuccess =>
+      'Rolled to tomorrow\'s starting balance! +15 pts earned 🎉';
+
+  @override
+  String get rolledToSavingsSuccess =>
+      'Transferred to Savings Vault! +15 pts earned 💰';
+
+  @override
+  String get lifestyleDailyScore => 'Lifestyle Daily Score';
+
+  @override
+  String pointsEarnedToday(int points) {
+    return '+$points points earned today';
+  }
+
+  @override
+  String cupsTarget(int current, int target) {
+    return '$current / $target cups';
+  }
+
+  @override
+  String get goalReached => '🎯 Goal reached!';
+
+  @override
+  String mealsLoggedCount(int count) {
+    return '$count meals logged (+5 pts each)';
+  }
+
+  @override
+  String get sleepWakeGoals => 'Sleep & Wake Goals';
+
+  @override
+  String get pointsForSleepingOnTime => '+10 points for sleeping on time';
+
+  @override
+  String get pointsForWakingOnTime => '+10 points for waking on time';
+
+  @override
+  String get pointsWhenCompleted => '+20 pts when completed';
+
+  @override
+  String get completedWithPoints => 'Completed (+20 pts)';
+
+  @override
+  String get recentActivity => 'Recent Activity';
+
+  @override
+  String get noActivityToday => 'No activity logged today yet.';
+
+  @override
+  String get activityWater => 'Drank 1 cup of water';
+
+  @override
+  String get activityMeal => 'Healthy meal (+5 pts)';
+
+  @override
+  String get activityWorkout => 'Workout session completed (+20 pts)';
+
+  @override
+  String get activitySleep => 'Slept on time (+10 pts)';
+
+  @override
+  String get activityWake => 'Woke up on time (+10 pts)';
+
+  @override
+  String get activityLogged => 'Activity logged';
+
+  @override
+  String get passed => 'Passed';
+
+  @override
+  String daysLeft(int days) {
+    return '$days days left';
+  }
+
+  @override
+  String get todayExclamation => 'Today!';
+
+  @override
+  String get prepTimeCommuteTitle => 'Preparation & Commute Time';
+
+  @override
+  String get prepTimeCommuteDesc =>
+      'How many minutes you need before your first morning lecture or task.';
+
+  @override
+  String minutesCount(int minutes) {
+    return '$minutes minutes';
+  }
+
+  @override
+  String get setBudget => 'Set Budget';
+
+  @override
+  String get budgetLimitsAlerts => 'Budget Limits & Alerts';
+
+  @override
+  String weeklyBudgetCurrency(String currency) {
+    return 'Weekly Budget ($currency)';
+  }
+
+  @override
+  String monthlyBudgetCurrency(String currency) {
+    return 'Monthly Budget ($currency)';
+  }
+
+  @override
+  String deleteExpenseConfirm(String category, String amount, String currency) {
+    return 'Delete $category expense of $amount $currency?';
+  }
+
+  @override
+  String get newDailyStartingBalance => 'New Daily Starting Balance';
+
+  @override
+  String get giftIdeaNoteHint =>
+      'e.g. Favorite perfume, bracelet size, flowers she loves...';
+
+  @override
+  String get universityTimetable => 'University Timetable';
+
+  @override
+  String get subjects => 'Subjects';
+
+  @override
+  String get addSubject => 'Add Subject';
+
+  @override
+  String get editSubject => 'Edit Subject';
+
+  @override
+  String get subjectName => 'Subject Name';
+
+  @override
+  String get color => 'Color';
+
+  @override
+  String get examDate => 'Exam Date';
+
+  @override
+  String get noSubjectsYet => 'No subjects added yet';
+
+  @override
+  String get addSession => 'Add Session';
+
+  @override
+  String get sessionType => 'Session Type';
+
+  @override
+  String get lecture => 'Lecture';
+
+  @override
+  String get section => 'Section';
+
+  @override
+  String get lab => 'Lab';
+
+  @override
+  String get weekday => 'Weekday';
+
+  @override
+  String get startTime => 'Start Time';
+
+  @override
+  String get endTime => 'End Time';
+
+  @override
+  String get location => 'Location (optional)';
+
+  @override
+  String get invalidTimeRange => 'End time must be after start time';
+
+  @override
+  String get sessionOverlapWarning =>
+      'Warning: This session overlaps with another session!';
+
+  @override
+  String get commuteQuestion =>
+      'How long will it take you to get to university today?';
+
+  @override
+  String get studyQuestion => 'Which subject will you study today?';
+
+  @override
+  String get noStudyToday => 'No study today';
+
+  @override
+  String get timelineWakeUp => 'Wake Up';
+
+  @override
+  String get timelineLeaveHome => 'Leave Home';
+
+  @override
+  String get timelineReturnHome => 'Return Home';
+
+  @override
+  String get timelineBedtime => 'Bedtime';
+
+  @override
+  String freeWindow(int minutes) {
+    return 'Free Window (${minutes}m)';
+  }
+
+  @override
+  String suggestedStudy(int minutes) {
+    return 'Suggested Study (${minutes}m)';
+  }
+
+  @override
+  String get attendanceChecklist => 'Attendance Checklist';
+
+  @override
+  String get attended => 'Attended';
+
+  @override
+  String attendedPoints(int points) {
+    return '+$points pts';
+  }
+
+  @override
+  String get attendanceBeforeStart => 'Attendance allowed after session starts';
+
+  @override
+  String get alreadyAttended => 'Already marked as attended';
+
+  @override
+  String get nowCard => 'Happening Now';
+
+  @override
+  String get nextCard => 'Up Next';
+
+  @override
+  String startsIn(String time) {
+    return 'Starts in $time';
+  }
+
+  @override
+  String endsIn(String time) {
+    return 'Ends in $time';
+  }
+
+  @override
+  String get noUpcomingSessions => 'No more sessions today';
+
+  @override
+  String get weeklyAttendanceRate => 'Weekly Attendance Rate';
+
+  @override
+  String get geminiApiKey => 'Gemini API Key';
+
+  @override
+  String get testKey => 'Test Key';
+
+  @override
+  String get keyValid => 'API Key is valid!';
+
+  @override
+  String get keyInvalid => 'Invalid API Key or API error';
+
+  @override
+  String get requireProofForPoints => 'Require proof for points';
+
+  @override
+  String get requireProofSubtitle =>
+      'Verify study & arrival with AI photo or GPS';
+
+  @override
+  String get saveUniversityLocation => 'Save University Location';
+
+  @override
+  String get locationSaved => 'University location saved successfully!';
+
+  @override
+  String allowedRadius(int meters) {
+    return 'Allowed Radius: ${meters}m';
+  }
+
+  @override
+  String get takeProof => 'Take Proof';
+
+  @override
+  String get proofVerified => 'Proof Verified! Points Awarded 🎉';
+
+  @override
+  String proofRejected(String reason) {
+    return 'Proof Rejected: $reason';
+  }
+
+  @override
+  String proofUnclear(String reason, int attempts) {
+    return 'Proof Unclear: $reason. Attempts remaining: $attempts';
+  }
+
+  @override
+  String get proofPendingOffline =>
+      'No internet connection. Proof queued for verification.';
+
+  @override
+  String get proofPrivacyNotice =>
+      'Photos taken are sent securely to Google Gemini for verification and deleted immediately after analysis. No photos are stored on servers.';
+
+  @override
+  String get proofLogs => 'Proof History';
+
+  @override
+  String get noProofLogs => 'No proof logs recorded yet';
+
+  @override
+  String locationMismatchFallback(int distance) {
+    return 'You are outside the university campus (${distance}m away). Please provide a photo proof instead.';
+  }
+
+  @override
+  String get locationPermissionDenied =>
+      'Location permission denied. Please provide a photo proof instead.';
+
+  @override
+  String get occasionType => 'Occasion Type';
+
+  @override
+  String get customCelebration => 'Custom Celebration';
+
+  @override
+  String get date => 'Date';
+
+  @override
+  String get change => 'Change';
+
+  @override
+  String get repeatYearlyDesc => 'Auto-renews next year after passing';
+
+  @override
+  String get yearly => 'Yearly';
 }

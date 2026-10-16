@@ -1,6 +1,13 @@
 import 'package:equatable/equatable.dart';
 import '../../data/models/expense_model.dart';
 
+enum RolloverEligibility {
+  eligible,
+  zeroBalance,
+  alreadyCompletedToday,
+  budgetExceeded,
+}
+
 class FinanceState extends Equatable {
   final List<ExpenseModel> expenses;
   final double startingBalance;
@@ -12,6 +19,7 @@ class FinanceState extends Equatable {
   final double weeklySpent;
   final double monthlySpent;
   final String? budgetAlert;
+  final RolloverEligibility rolloverEligibility;
 
   const FinanceState({
     required this.expenses,
@@ -24,7 +32,10 @@ class FinanceState extends Equatable {
     this.weeklySpent = 0.0,
     this.monthlySpent = 0.0,
     this.budgetAlert,
+    this.rolloverEligibility = RolloverEligibility.zeroBalance,
   });
+
+  bool get canRollover => rolloverEligibility == RolloverEligibility.eligible;
 
   FinanceState copyWith({
     List<ExpenseModel>? expenses,
@@ -38,6 +49,7 @@ class FinanceState extends Equatable {
     double? monthlySpent,
     String? budgetAlert,
     bool clearAlert = false,
+    RolloverEligibility? rolloverEligibility,
   }) {
     return FinanceState(
       expenses: expenses ?? this.expenses,
@@ -50,6 +62,7 @@ class FinanceState extends Equatable {
       weeklySpent: weeklySpent ?? this.weeklySpent,
       monthlySpent: monthlySpent ?? this.monthlySpent,
       budgetAlert: clearAlert ? null : (budgetAlert ?? this.budgetAlert),
+      rolloverEligibility: rolloverEligibility ?? this.rolloverEligibility,
     );
   }
 
@@ -65,5 +78,6 @@ class FinanceState extends Equatable {
         weeklySpent,
         monthlySpent,
         budgetAlert,
+        rolloverEligibility,
       ];
 }

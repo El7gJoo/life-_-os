@@ -14,8 +14,13 @@ class SettingsRepositoryImpl implements SettingsRepository {
   Future<void> setLanguageCode(String code) => _box.put(AppConstants.languageKey, code);
 
   @override
-  int getDayBoundaryHour() =>
-      _box.get(AppConstants.dayBoundaryKey, defaultValue: AppConstants.defaultDayBoundaryHour) as int;
+  int getDayBoundaryHour() {
+    final val = _box.get(AppConstants.dayBoundaryKey, defaultValue: AppConstants.defaultDayBoundaryHour);
+    if (val is int && val >= 1 && val <= 12) {
+      return val;
+    }
+    return AppConstants.defaultDayBoundaryHour;
+  }
 
   @override
   Future<void> setDayBoundaryHour(int hour) => _box.put(AppConstants.dayBoundaryKey, hour);
@@ -96,6 +101,17 @@ class SettingsRepositoryImpl implements SettingsRepository {
   @override
   Future<void> setLastBackupDate(DateTime date) =>
       _box.put(AppConstants.lastBackupKey, date.toIso8601String());
+
+  @override
+  DateTime? getLastRolloverDate() {
+    final stored = _box.get(AppConstants.lastRolloverKey) as String?;
+    if (stored == null) return null;
+    return DateTime.tryParse(stored);
+  }
+
+  @override
+  Future<void> setLastRolloverDate(DateTime date) =>
+      _box.put(AppConstants.lastRolloverKey, date.toIso8601String());
 
   @override
   Map<String, dynamic> exportAll() => Map<String, dynamic>.from(_box.toMap().map(

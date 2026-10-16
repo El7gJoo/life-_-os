@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:uuid/uuid.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/utils/haptic_utils.dart';
+import '../../../../core/utils/rtl_utils.dart';
 import '../../../../core/widgets/category_background_wrapper.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../../services/csv_export_service.dart';
@@ -23,6 +24,24 @@ class FinanceScreen extends StatelessWidget {
       category: CategoryTheme.finance,
       child: BlocBuilder<FinanceCubit, FinanceState>(
         builder: (context, state) {
+          String? rolloverDisabledReason;
+          if (!state.canRollover) {
+            switch (state.rolloverEligibility) {
+              case RolloverEligibility.zeroBalance:
+                rolloverDisabledReason = l10n.rolloverDisabledZero;
+                break;
+              case RolloverEligibility.alreadyCompletedToday:
+                rolloverDisabledReason = l10n.rolloverDisabledAlready;
+                break;
+              case RolloverEligibility.budgetExceeded:
+                rolloverDisabledReason = l10n.rolloverDisabledDeficit;
+                break;
+              case RolloverEligibility.eligible:
+                rolloverDisabledReason = null;
+                break;
+            }
+          }
+
           return Scaffold(
             backgroundColor: Colors.transparent,
             appBar: AppBar(
@@ -31,12 +50,12 @@ class FinanceScreen extends StatelessWidget {
               elevation: 0,
               actions: [
                 IconButton(
-                  tooltip: 'Set Budget',
+                  tooltip: l10n.setBudget,
                   icon: const Icon(Icons.tune),
                   onPressed: () => _showBudgetLimitsDialog(context, state),
                 ),
                 IconButton(
-                  tooltip: 'Export CSV',
+                  tooltip: l10n.exportCSV,
                   icon: const Icon(Icons.file_download_outlined),
                   onPressed: () => _exportCsv(context, state),
                 ),
@@ -63,9 +82,9 @@ class FinanceScreen extends StatelessWidget {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                const Text(
-                                  'Budget Warning',
-                                  style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.warning),
+                                Text(
+                                  l10n.budgetWarning,
+                                  style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.warning),
                                 ),
                                 const SizedBox(height: 2),
                                 Text(
@@ -96,7 +115,7 @@ class FinanceScreen extends StatelessWidget {
                         ),
                         const SizedBox(height: 6),
                         Text(
-                          '${state.remainingPocket.toStringAsFixed(1)} ${state.currency}',
+                          RtlUtils.formatCurrency(state.remainingPocket, state.currency),
                           style: theme.textTheme.headlineMedium?.copyWith(
                             fontWeight: FontWeight.bold,
                             color: state.remainingPocket >= 0
@@ -125,7 +144,7 @@ class FinanceScreen extends StatelessWidget {
                                     ),
                                     const SizedBox(height: 4),
                                     Text(
-                                      '${state.startingBalance.toStringAsFixed(0)} ${state.currency}',
+                                      RtlUtils.formatCurrency(state.startingBalance, state.currency, decimals: 0),
                                       style: const TextStyle(fontWeight: FontWeight.bold),
                                     ),
                                   ],
@@ -137,7 +156,7 @@ class FinanceScreen extends StatelessWidget {
                                 Text(l10n.totalSpent, style: theme.textTheme.bodySmall),
                                 const SizedBox(height: 4),
                                 Text(
-                                  '${state.totalSpentToday.toStringAsFixed(1)} ${state.currency}',
+                                  RtlUtils.formatCurrency(state.totalSpentToday, state.currency),
                                   style: const TextStyle(
                                     fontWeight: FontWeight.bold,
                                     color: AppColors.error,
@@ -156,16 +175,28 @@ class FinanceScreen extends StatelessWidget {
                           child: ElevatedButton.icon(
                             style: ElevatedButton.styleFrom(
                               backgroundColor: AppColors.emeraldGreenLight,
+                              disabledBackgroundColor: Colors.grey.shade400,
                               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                             ),
                             icon: const Icon(Icons.auto_awesome, color: Colors.white, size: 18),
-                            label: const Text(
-                              'End-of-Day Rollover (+15 pts)',
-                              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                            label: Text(
+                              l10n.endOfDayRolloverBonus,
+                              style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
                             ),
-                            onPressed: () => _confirmRollover(context, state),
+                            onPressed: state.canRollover ? () => _confirmRollover(context, state) : null,
                           ),
                         ),
+                        if (rolloverDisabledReason != null) ...[
+                          const SizedBox(height: 6),
+                          Text(
+                            rolloverDisabledReason,
+                            textAlign: TextAlign.center,
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              color: Colors.grey.shade600,
+                              fontSize: 11,
+                            ),
+                          ),
+                        ],
                       ],
                     ),
                   ),
@@ -200,7 +231,7 @@ class FinanceScreen extends StatelessWidget {
                       style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
                     ),
                     Text(
-                      '${state.expenses.length} records',
+                      l10n.recordsCount(state.expenses.length),
                       style: theme.textTheme.bodySmall?.copyWith(color: Colors.grey),
                     ),
                   ],
@@ -231,7 +262,7 @@ class FinanceScreen extends StatelessWidget {
                           child: Icon(_getCategoryIcon(expense.category), color: AppColors.emeraldGreenLight),
                         ),
                         title: Text(
-                          expense.category.toUpperCase(),
+                          _getCategoryLocalizedName(context, expense.category),
                           style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
                         ),
                         subtitle: Text(
@@ -241,7 +272,7 @@ class FinanceScreen extends StatelessWidget {
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Text(
-                              '-${expense.amount.toStringAsFixed(1)} ${state.currency}',
+                              RtlUtils.formatCurrency(expense.amount, state.currency, isNegative: true),
                               style: const TextStyle(
                                 color: AppColors.error,
                                 fontWeight: FontWeight.bold,
@@ -263,6 +294,22 @@ class FinanceScreen extends StatelessWidget {
         },
       ),
     );
+  }
+
+  String _getCategoryLocalizedName(BuildContext context, String category) {
+    final l10n = AppLocalizations.of(context);
+    switch (category) {
+      case 'gas':
+        return l10n.gasFuel;
+      case 'food':
+        return l10n.universityFood;
+      case 'drinks':
+        return l10n.coffeeDrinks;
+      case 'transport':
+        return l10n.transport;
+      default:
+        return l10n.other;
+    }
   }
 
   IconData _getCategoryIcon(String category) {
@@ -369,7 +416,7 @@ class FinanceScreen extends StatelessWidget {
           keyboardType: const TextInputType.numberWithOptions(decimal: true),
           autofocus: true,
           decoration: InputDecoration(
-            labelText: 'New Daily Starting Balance',
+            labelText: l10n.newDailyStartingBalance,
             border: const OutlineInputBorder(),
           ),
         ),
@@ -395,6 +442,7 @@ class FinanceScreen extends StatelessWidget {
   }
 
   void _showBudgetLimitsDialog(BuildContext context, FinanceState state) {
+    final l10n = AppLocalizations.of(context);
     final weeklyController = TextEditingController(
       text: state.weeklyBudget > 0 ? state.weeklyBudget.toStringAsFixed(0) : '',
     );
@@ -406,7 +454,7 @@ class FinanceScreen extends StatelessWidget {
       context: context,
       builder: (dialogCtx) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Text('Budget Limits & Alerts'),
+        title: Text(l10n.budgetLimitsAlerts),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -414,8 +462,8 @@ class FinanceScreen extends StatelessWidget {
               controller: weeklyController,
               keyboardType: TextInputType.number,
               decoration: InputDecoration(
-                labelText: 'Weekly Budget (${state.currency})',
-                hintText: 'e.g. 500',
+                labelText: l10n.weeklyBudgetCurrency(state.currency),
+                hintText: '500',
                 border: const OutlineInputBorder(),
               ),
             ),
@@ -424,8 +472,8 @@ class FinanceScreen extends StatelessWidget {
               controller: monthlyController,
               keyboardType: TextInputType.number,
               decoration: InputDecoration(
-                labelText: 'Monthly Budget (${state.currency})',
-                hintText: 'e.g. 2000',
+                labelText: l10n.monthlyBudgetCurrency(state.currency),
+                hintText: '2000',
                 border: const OutlineInputBorder(),
               ),
             ),
@@ -434,7 +482,7 @@ class FinanceScreen extends StatelessWidget {
         actions: [
           TextButton(
             onPressed: () => Navigator.of(dialogCtx).pop(),
-            child: const Text('Cancel'),
+            child: Text(l10n.cancel),
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(backgroundColor: AppColors.emeraldGreenLight),
@@ -445,7 +493,7 @@ class FinanceScreen extends StatelessWidget {
               dialogCtx.read<FinanceCubit>().setMonthlyBudget(m);
               Navigator.of(dialogCtx).pop();
             },
-            child: const Text('Save', style: TextStyle(color: Colors.white)),
+            child: Text(l10n.save, style: const TextStyle(color: Colors.white)),
           ),
         ],
       ),
@@ -453,10 +501,8 @@ class FinanceScreen extends StatelessWidget {
   }
 
   void _confirmRollover(BuildContext context, FinanceState state) {
-    if (state.remainingPocket < 0) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Cannot rollover: Daily budget was exceeded.')),
-      );
+    final l10n = AppLocalizations.of(context);
+    if (!state.canRollover) {
       return;
     }
 
@@ -464,14 +510,14 @@ class FinanceScreen extends StatelessWidget {
       context: context,
       builder: (dialogCtx) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Text('End-of-Day Rollover (+15 pts)'),
+        title: Text(l10n.endOfDayRolloverBonus),
         content: Text(
-          'You have ${state.remainingPocket.toStringAsFixed(1)} ${state.currency} remaining.\n\nChoose how you want to handle your leftover balance:',
+          l10n.rolloverDialogContent(state.remainingPocket.toStringAsFixed(1), state.currency),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(dialogCtx).pop(),
-            child: const Text('Cancel'),
+            child: Text(l10n.cancel),
           ),
           ElevatedButton(
             onPressed: () async {
@@ -482,10 +528,10 @@ class FinanceScreen extends StatelessWidget {
               await cubit.closeDayRollover(rollToSavings: false);
               navigator.pop();
               messenger.showSnackBar(
-                const SnackBar(content: Text('Rolled to tomorrow\'s starting balance! +15 pts earned 🎉')),
+                SnackBar(content: Text(l10n.rolledToTomorrowSuccess)),
               );
             },
-            child: const Text('Keep for Tomorrow'),
+            child: Text(l10n.keepForTomorrow),
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(backgroundColor: AppColors.emeraldGreenLight),
@@ -497,10 +543,10 @@ class FinanceScreen extends StatelessWidget {
               await cubit.closeDayRollover(rollToSavings: true);
               navigator.pop();
               messenger.showSnackBar(
-                const SnackBar(content: Text('Transferred to Savings Vault! +15 pts earned 💰')),
+                SnackBar(content: Text(l10n.rolledToSavingsSuccess)),
               );
             },
-            child: const Text('Send to Savings Vault', style: TextStyle(color: Colors.white)),
+            child: Text(l10n.sendToSavingsVault, style: const TextStyle(color: Colors.white)),
           ),
         ],
       ),
@@ -513,7 +559,11 @@ class FinanceScreen extends StatelessWidget {
       context: context,
       builder: (dialogCtx) => AlertDialog(
         title: Text(l10n.delete),
-        content: Text('Delete ${expense.category} expense of ${expense.amount.toStringAsFixed(1)}?'),
+        content: Text(l10n.deleteExpenseConfirm(
+          _getCategoryLocalizedName(context, expense.category),
+          expense.amount.toStringAsFixed(1),
+          context.read<FinanceCubit>().state.currency,
+        )),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(dialogCtx).pop(),
@@ -533,6 +583,7 @@ class FinanceScreen extends StatelessWidget {
   }
 
   Future<void> _exportCsv(BuildContext context, FinanceState state) async {
+    final l10n = AppLocalizations.of(context);
     try {
       await CsvExportService().exportExpensesToCsv(
         expenses: state.expenses,
@@ -541,7 +592,7 @@ class FinanceScreen extends StatelessWidget {
     } catch (e) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Export failed: $e')),
+          SnackBar(content: Text('${l10n.error}: $e')),
         );
       }
     }

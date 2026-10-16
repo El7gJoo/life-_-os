@@ -13,6 +13,7 @@ import '../features/lifestyle/data/models/lifestyle_log_model.dart';
 import '../features/lifestyle/data/repositories/lifestyle_repository.dart';
 import '../features/schedule_study/data/models/schedule_item_model.dart';
 import '../features/schedule_study/data/repositories/schedule_repository.dart';
+import '../features/settings_backup/data/repositories/settings_repository.dart';
 
 class MockDataSeeder {
   Future<void> seedAll({
@@ -21,10 +22,15 @@ class MockDataSeeder {
     required FianceeRepository fianceeRepo,
     required FinanceRepository financeRepo,
     required LifestyleRepository lifestyleRepo,
+    SettingsRepository? settingsRepo,
   }) async {
     if (!kDebugMode) return; // Only in debug mode
 
     final now = DateTime.now();
+
+    if (settingsRepo != null && settingsRepo.getStartingBalance() <= 0) {
+      await settingsRepo.setStartingBalance(500.0);
+    }
 
     // 1. Seed Rewards
     await gamificationRepo.seedDefaultRewards();
@@ -187,23 +193,23 @@ class MockDataSeeder {
     if (financeRepo.getExpenses().isEmpty) {
       await financeRepo.addExpense(ExpenseModel(
         amount: 150.0,
-        category: 'gas_fuel',
+        category: 'gas',
         note: 'Octane 95 Full Tank partial',
         timestamp: now.subtract(const Duration(days: 2, hours: 4)),
       ));
 
       await financeRepo.addExpense(ExpenseModel(
         amount: 85.0,
-        category: 'coffee_drinks',
+        category: 'drinks',
         note: 'Iced Flat White & Croissant',
         timestamp: now.subtract(const Duration(days: 1, hours: 6)),
       ));
 
       await financeRepo.addExpense(ExpenseModel(
         amount: 120.0,
-        category: 'university_food',
+        category: 'food',
         note: 'Healthy lunch bowl',
-        timestamp: now.subtract(const Duration(hours: 3)),
+        timestamp: now.subtract(const Duration(hours: 1)),
       ));
     }
 

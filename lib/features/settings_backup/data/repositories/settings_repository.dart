@@ -23,6 +23,8 @@ abstract class SettingsRepository {
   Future<void> setStreakFreezeWeek(String weekKey);
   DateTime? getLastBackupDate();
   Future<void> setLastBackupDate(DateTime date);
+  DateTime? getLastRolloverDate();
+  Future<void> setLastRolloverDate(DateTime date);
   Map<String, dynamic> exportAll();
   Future<void> importAll(Map<String, dynamic> data);
 }

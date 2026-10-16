@@ -722,6 +722,12 @@ abstract class AppLocalizations {
   /// **'You\'ve used {percent}% of your budget'**
   String budgetAlert(int percent);
 
+  /// No description provided for @budgetWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'Budget Warning'**
+  String get budgetWarning;
+
   /// No description provided for @rolloverSavings.
   ///
   /// In en, this message translates to:
@@ -1111,6 +1117,822 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Check your remaining tasks'**
   String get checkTasks;
+
+  /// No description provided for @all.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get all;
+
+  /// No description provided for @giftIdeas.
+  ///
+  /// In en, this message translates to:
+  /// **'Gift Ideas 🎁'**
+  String get giftIdeas;
+
+  /// No description provided for @sheLikes.
+  ///
+  /// In en, this message translates to:
+  /// **'She Likes ✨'**
+  String get sheLikes;
+
+  /// No description provided for @notesCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'Notes 📝'**
+  String get notesCategory;
+
+  /// No description provided for @pointsDailyReward.
+  ///
+  /// In en, this message translates to:
+  /// **'+{points} points daily reward'**
+  String pointsDailyReward(int points);
+
+  /// No description provided for @qualityTimeSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Quality Time logged! +15 points earned ❤️'**
+  String get qualityTimeSuccess;
+
+  /// No description provided for @deleteOccasionConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete occasion \"{name}\"? Scheduled notifications will also be cancelled.'**
+  String deleteOccasionConfirm(String name);
+
+  /// No description provided for @noBackupYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No backup performed yet'**
+  String get noBackupYet;
+
+  /// No description provided for @lastBackupLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Last backup: {time}'**
+  String lastBackupLabel(String time);
+
+  /// No description provided for @restoreJsonDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore all boxes from JSON backup file'**
+  String get restoreJsonDesc;
+
+  /// No description provided for @devTools.
+  ///
+  /// In en, this message translates to:
+  /// **'Developer Tools'**
+  String get devTools;
+
+  /// No description provided for @seedMockData.
+  ///
+  /// In en, this message translates to:
+  /// **'Seed Mock Data'**
+  String get seedMockData;
+
+  /// No description provided for @seedMockDataDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Fill all modules with sample test data'**
+  String get seedMockDataDesc;
+
+  /// No description provided for @seedDataButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Seed Data'**
+  String get seedDataButton;
+
+  /// No description provided for @mockDataSeededSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Mock test data seeded successfully!'**
+  String get mockDataSeededSuccess;
+
+  /// No description provided for @sideloadBackupReminder.
+  ///
+  /// In en, this message translates to:
+  /// **'iOS Sideload Backup Reminder'**
+  String get sideloadBackupReminder;
+
+  /// No description provided for @sideloadBackupReminderDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Export backup weekly to protect your data across 7-day sideload certificates (AltStore/SideStore).'**
+  String get sideloadBackupReminderDesc;
+
+  /// No description provided for @backupFresh.
+  ///
+  /// In en, this message translates to:
+  /// **'Backup is fresh.'**
+  String get backupFresh;
+
+  /// No description provided for @backupRecommended.
+  ///
+  /// In en, this message translates to:
+  /// **'⚠️ Refresh certificate & backup recommended!'**
+  String get backupRecommended;
+
+  /// No description provided for @preferences.
+  ///
+  /// In en, this message translates to:
+  /// **'Preferences'**
+  String get preferences;
+
+  /// No description provided for @recommended.
+  ///
+  /// In en, this message translates to:
+  /// **'Recommended'**
+  String get recommended;
+
+  /// No description provided for @restoreConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore Backup?'**
+  String get restoreConfirmTitle;
+
+  /// No description provided for @restoreConfirmDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Restoring data from a backup file will replace current local data with the backup contents. Do you want to proceed?'**
+  String get restoreConfirmDesc;
+
+  /// No description provided for @proceed.
+  ///
+  /// In en, this message translates to:
+  /// **'Proceed'**
+  String get proceed;
+
+  /// No description provided for @backupExportedSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Backup exported successfully!'**
+  String get backupExportedSuccess;
+
+  /// No description provided for @backupRestoredSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Backup restored successfully!'**
+  String get backupRestoredSuccess;
+
+  /// No description provided for @exportFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Export failed: {error}'**
+  String exportFailed(String error);
+
+  /// No description provided for @restoreFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore failed: {error}'**
+  String restoreFailed(String error);
+
+  /// No description provided for @seedingFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Seeding failed: {error}'**
+  String seedingFailed(String error);
+
+  /// No description provided for @dayBoundaryHourTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Day Boundary Hour'**
+  String get dayBoundaryHourTitle;
+
+  /// No description provided for @dayBoundaryDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Select when your productivity day flips (e.g. 4:00 AM allows night owls to finish tasks before next day resets).'**
+  String get dayBoundaryDesc;
+
+  /// No description provided for @recordsCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} records'**
+  String recordsCount(int count);
+
+  /// No description provided for @endOfDayRolloverBonus.
+  ///
+  /// In en, this message translates to:
+  /// **'End-of-Day Rollover (+15 pts)'**
+  String get endOfDayRolloverBonus;
+
+  /// No description provided for @rolloverDisabledZero.
+  ///
+  /// In en, this message translates to:
+  /// **'Starting balance must be greater than 0'**
+  String get rolloverDisabledZero;
+
+  /// No description provided for @rolloverDisabledAlready.
+  ///
+  /// In en, this message translates to:
+  /// **'Rollover already completed today'**
+  String get rolloverDisabledAlready;
+
+  /// No description provided for @rolloverDisabledDeficit.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily budget was exceeded'**
+  String get rolloverDisabledDeficit;
+
+  /// No description provided for @rolloverDialogContent.
+  ///
+  /// In en, this message translates to:
+  /// **'You have {amount} {currency} remaining.\n\nChoose how you want to handle your leftover balance:'**
+  String rolloverDialogContent(String amount, String currency);
+
+  /// No description provided for @keepForTomorrow.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep for Tomorrow'**
+  String get keepForTomorrow;
+
+  /// No description provided for @sendToSavingsVault.
+  ///
+  /// In en, this message translates to:
+  /// **'Send to Savings Vault'**
+  String get sendToSavingsVault;
+
+  /// No description provided for @rolledToTomorrowSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Rolled to tomorrow\'s starting balance! +15 pts earned 🎉'**
+  String get rolledToTomorrowSuccess;
+
+  /// No description provided for @rolledToSavingsSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Transferred to Savings Vault! +15 pts earned 💰'**
+  String get rolledToSavingsSuccess;
+
+  /// No description provided for @lifestyleDailyScore.
+  ///
+  /// In en, this message translates to:
+  /// **'Lifestyle Daily Score'**
+  String get lifestyleDailyScore;
+
+  /// No description provided for @pointsEarnedToday.
+  ///
+  /// In en, this message translates to:
+  /// **'+{points} points earned today'**
+  String pointsEarnedToday(int points);
+
+  /// No description provided for @cupsTarget.
+  ///
+  /// In en, this message translates to:
+  /// **'{current} / {target} cups'**
+  String cupsTarget(int current, int target);
+
+  /// No description provided for @goalReached.
+  ///
+  /// In en, this message translates to:
+  /// **'🎯 Goal reached!'**
+  String get goalReached;
+
+  /// No description provided for @mealsLoggedCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} meals logged (+5 pts each)'**
+  String mealsLoggedCount(int count);
+
+  /// No description provided for @sleepWakeGoals.
+  ///
+  /// In en, this message translates to:
+  /// **'Sleep & Wake Goals'**
+  String get sleepWakeGoals;
+
+  /// No description provided for @pointsForSleepingOnTime.
+  ///
+  /// In en, this message translates to:
+  /// **'+10 points for sleeping on time'**
+  String get pointsForSleepingOnTime;
+
+  /// No description provided for @pointsForWakingOnTime.
+  ///
+  /// In en, this message translates to:
+  /// **'+10 points for waking on time'**
+  String get pointsForWakingOnTime;
+
+  /// No description provided for @pointsWhenCompleted.
+  ///
+  /// In en, this message translates to:
+  /// **'+20 pts when completed'**
+  String get pointsWhenCompleted;
+
+  /// No description provided for @completedWithPoints.
+  ///
+  /// In en, this message translates to:
+  /// **'Completed (+20 pts)'**
+  String get completedWithPoints;
+
+  /// No description provided for @recentActivity.
+  ///
+  /// In en, this message translates to:
+  /// **'Recent Activity'**
+  String get recentActivity;
+
+  /// No description provided for @noActivityToday.
+  ///
+  /// In en, this message translates to:
+  /// **'No activity logged today yet.'**
+  String get noActivityToday;
+
+  /// No description provided for @activityWater.
+  ///
+  /// In en, this message translates to:
+  /// **'Drank 1 cup of water'**
+  String get activityWater;
+
+  /// No description provided for @activityMeal.
+  ///
+  /// In en, this message translates to:
+  /// **'Healthy meal (+5 pts)'**
+  String get activityMeal;
+
+  /// No description provided for @activityWorkout.
+  ///
+  /// In en, this message translates to:
+  /// **'Workout session completed (+20 pts)'**
+  String get activityWorkout;
+
+  /// No description provided for @activitySleep.
+  ///
+  /// In en, this message translates to:
+  /// **'Slept on time (+10 pts)'**
+  String get activitySleep;
+
+  /// No description provided for @activityWake.
+  ///
+  /// In en, this message translates to:
+  /// **'Woke up on time (+10 pts)'**
+  String get activityWake;
+
+  /// No description provided for @activityLogged.
+  ///
+  /// In en, this message translates to:
+  /// **'Activity logged'**
+  String get activityLogged;
+
+  /// No description provided for @passed.
+  ///
+  /// In en, this message translates to:
+  /// **'Passed'**
+  String get passed;
+
+  /// No description provided for @daysLeft.
+  ///
+  /// In en, this message translates to:
+  /// **'{days} days left'**
+  String daysLeft(int days);
+
+  /// No description provided for @todayExclamation.
+  ///
+  /// In en, this message translates to:
+  /// **'Today!'**
+  String get todayExclamation;
+
+  /// No description provided for @prepTimeCommuteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Preparation & Commute Time'**
+  String get prepTimeCommuteTitle;
+
+  /// No description provided for @prepTimeCommuteDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'How many minutes you need before your first morning lecture or task.'**
+  String get prepTimeCommuteDesc;
+
+  /// No description provided for @minutesCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{minutes} minutes'**
+  String minutesCount(int minutes);
+
+  /// No description provided for @setBudget.
+  ///
+  /// In en, this message translates to:
+  /// **'Set Budget'**
+  String get setBudget;
+
+  /// No description provided for @budgetLimitsAlerts.
+  ///
+  /// In en, this message translates to:
+  /// **'Budget Limits & Alerts'**
+  String get budgetLimitsAlerts;
+
+  /// No description provided for @weeklyBudgetCurrency.
+  ///
+  /// In en, this message translates to:
+  /// **'Weekly Budget ({currency})'**
+  String weeklyBudgetCurrency(String currency);
+
+  /// No description provided for @monthlyBudgetCurrency.
+  ///
+  /// In en, this message translates to:
+  /// **'Monthly Budget ({currency})'**
+  String monthlyBudgetCurrency(String currency);
+
+  /// No description provided for @deleteExpenseConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete {category} expense of {amount} {currency}?'**
+  String deleteExpenseConfirm(String category, String amount, String currency);
+
+  /// No description provided for @newDailyStartingBalance.
+  ///
+  /// In en, this message translates to:
+  /// **'New Daily Starting Balance'**
+  String get newDailyStartingBalance;
+
+  /// No description provided for @giftIdeaNoteHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. Favorite perfume, bracelet size, flowers she loves...'**
+  String get giftIdeaNoteHint;
+
+  /// No description provided for @universityTimetable.
+  ///
+  /// In en, this message translates to:
+  /// **'University Timetable'**
+  String get universityTimetable;
+
+  /// No description provided for @subjects.
+  ///
+  /// In en, this message translates to:
+  /// **'Subjects'**
+  String get subjects;
+
+  /// No description provided for @addSubject.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Subject'**
+  String get addSubject;
+
+  /// No description provided for @editSubject.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Subject'**
+  String get editSubject;
+
+  /// No description provided for @subjectName.
+  ///
+  /// In en, this message translates to:
+  /// **'Subject Name'**
+  String get subjectName;
+
+  /// No description provided for @color.
+  ///
+  /// In en, this message translates to:
+  /// **'Color'**
+  String get color;
+
+  /// No description provided for @examDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Exam Date'**
+  String get examDate;
+
+  /// No description provided for @noSubjectsYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No subjects added yet'**
+  String get noSubjectsYet;
+
+  /// No description provided for @addSession.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Session'**
+  String get addSession;
+
+  /// No description provided for @sessionType.
+  ///
+  /// In en, this message translates to:
+  /// **'Session Type'**
+  String get sessionType;
+
+  /// No description provided for @lecture.
+  ///
+  /// In en, this message translates to:
+  /// **'Lecture'**
+  String get lecture;
+
+  /// No description provided for @section.
+  ///
+  /// In en, this message translates to:
+  /// **'Section'**
+  String get section;
+
+  /// No description provided for @lab.
+  ///
+  /// In en, this message translates to:
+  /// **'Lab'**
+  String get lab;
+
+  /// No description provided for @weekday.
+  ///
+  /// In en, this message translates to:
+  /// **'Weekday'**
+  String get weekday;
+
+  /// No description provided for @startTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Start Time'**
+  String get startTime;
+
+  /// No description provided for @endTime.
+  ///
+  /// In en, this message translates to:
+  /// **'End Time'**
+  String get endTime;
+
+  /// No description provided for @location.
+  ///
+  /// In en, this message translates to:
+  /// **'Location (optional)'**
+  String get location;
+
+  /// No description provided for @invalidTimeRange.
+  ///
+  /// In en, this message translates to:
+  /// **'End time must be after start time'**
+  String get invalidTimeRange;
+
+  /// No description provided for @sessionOverlapWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'Warning: This session overlaps with another session!'**
+  String get sessionOverlapWarning;
+
+  /// No description provided for @commuteQuestion.
+  ///
+  /// In en, this message translates to:
+  /// **'How long will it take you to get to university today?'**
+  String get commuteQuestion;
+
+  /// No description provided for @studyQuestion.
+  ///
+  /// In en, this message translates to:
+  /// **'Which subject will you study today?'**
+  String get studyQuestion;
+
+  /// No description provided for @noStudyToday.
+  ///
+  /// In en, this message translates to:
+  /// **'No study today'**
+  String get noStudyToday;
+
+  /// No description provided for @timelineWakeUp.
+  ///
+  /// In en, this message translates to:
+  /// **'Wake Up'**
+  String get timelineWakeUp;
+
+  /// No description provided for @timelineLeaveHome.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave Home'**
+  String get timelineLeaveHome;
+
+  /// No description provided for @timelineReturnHome.
+  ///
+  /// In en, this message translates to:
+  /// **'Return Home'**
+  String get timelineReturnHome;
+
+  /// No description provided for @timelineBedtime.
+  ///
+  /// In en, this message translates to:
+  /// **'Bedtime'**
+  String get timelineBedtime;
+
+  /// No description provided for @freeWindow.
+  ///
+  /// In en, this message translates to:
+  /// **'Free Window ({minutes}m)'**
+  String freeWindow(int minutes);
+
+  /// No description provided for @suggestedStudy.
+  ///
+  /// In en, this message translates to:
+  /// **'Suggested Study ({minutes}m)'**
+  String suggestedStudy(int minutes);
+
+  /// No description provided for @attendanceChecklist.
+  ///
+  /// In en, this message translates to:
+  /// **'Attendance Checklist'**
+  String get attendanceChecklist;
+
+  /// No description provided for @attended.
+  ///
+  /// In en, this message translates to:
+  /// **'Attended'**
+  String get attended;
+
+  /// No description provided for @attendedPoints.
+  ///
+  /// In en, this message translates to:
+  /// **'+{points} pts'**
+  String attendedPoints(int points);
+
+  /// No description provided for @attendanceBeforeStart.
+  ///
+  /// In en, this message translates to:
+  /// **'Attendance allowed after session starts'**
+  String get attendanceBeforeStart;
+
+  /// No description provided for @alreadyAttended.
+  ///
+  /// In en, this message translates to:
+  /// **'Already marked as attended'**
+  String get alreadyAttended;
+
+  /// No description provided for @nowCard.
+  ///
+  /// In en, this message translates to:
+  /// **'Happening Now'**
+  String get nowCard;
+
+  /// No description provided for @nextCard.
+  ///
+  /// In en, this message translates to:
+  /// **'Up Next'**
+  String get nextCard;
+
+  /// No description provided for @startsIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Starts in {time}'**
+  String startsIn(String time);
+
+  /// No description provided for @endsIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Ends in {time}'**
+  String endsIn(String time);
+
+  /// No description provided for @noUpcomingSessions.
+  ///
+  /// In en, this message translates to:
+  /// **'No more sessions today'**
+  String get noUpcomingSessions;
+
+  /// No description provided for @weeklyAttendanceRate.
+  ///
+  /// In en, this message translates to:
+  /// **'Weekly Attendance Rate'**
+  String get weeklyAttendanceRate;
+
+  /// No description provided for @geminiApiKey.
+  ///
+  /// In en, this message translates to:
+  /// **'Gemini API Key'**
+  String get geminiApiKey;
+
+  /// No description provided for @testKey.
+  ///
+  /// In en, this message translates to:
+  /// **'Test Key'**
+  String get testKey;
+
+  /// No description provided for @keyValid.
+  ///
+  /// In en, this message translates to:
+  /// **'API Key is valid!'**
+  String get keyValid;
+
+  /// No description provided for @keyInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid API Key or API error'**
+  String get keyInvalid;
+
+  /// No description provided for @requireProofForPoints.
+  ///
+  /// In en, this message translates to:
+  /// **'Require proof for points'**
+  String get requireProofForPoints;
+
+  /// No description provided for @requireProofSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Verify study & arrival with AI photo or GPS'**
+  String get requireProofSubtitle;
+
+  /// No description provided for @saveUniversityLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'Save University Location'**
+  String get saveUniversityLocation;
+
+  /// No description provided for @locationSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'University location saved successfully!'**
+  String get locationSaved;
+
+  /// No description provided for @allowedRadius.
+  ///
+  /// In en, this message translates to:
+  /// **'Allowed Radius: {meters}m'**
+  String allowedRadius(int meters);
+
+  /// No description provided for @takeProof.
+  ///
+  /// In en, this message translates to:
+  /// **'Take Proof'**
+  String get takeProof;
+
+  /// No description provided for @proofVerified.
+  ///
+  /// In en, this message translates to:
+  /// **'Proof Verified! Points Awarded 🎉'**
+  String get proofVerified;
+
+  /// No description provided for @proofRejected.
+  ///
+  /// In en, this message translates to:
+  /// **'Proof Rejected: {reason}'**
+  String proofRejected(String reason);
+
+  /// No description provided for @proofUnclear.
+  ///
+  /// In en, this message translates to:
+  /// **'Proof Unclear: {reason}. Attempts remaining: {attempts}'**
+  String proofUnclear(String reason, int attempts);
+
+  /// No description provided for @proofPendingOffline.
+  ///
+  /// In en, this message translates to:
+  /// **'No internet connection. Proof queued for verification.'**
+  String get proofPendingOffline;
+
+  /// No description provided for @proofPrivacyNotice.
+  ///
+  /// In en, this message translates to:
+  /// **'Photos taken are sent securely to Google Gemini for verification and deleted immediately after analysis. No photos are stored on servers.'**
+  String get proofPrivacyNotice;
+
+  /// No description provided for @proofLogs.
+  ///
+  /// In en, this message translates to:
+  /// **'Proof History'**
+  String get proofLogs;
+
+  /// No description provided for @noProofLogs.
+  ///
+  /// In en, this message translates to:
+  /// **'No proof logs recorded yet'**
+  String get noProofLogs;
+
+  /// No description provided for @locationMismatchFallback.
+  ///
+  /// In en, this message translates to:
+  /// **'You are outside the university campus ({distance}m away). Please provide a photo proof instead.'**
+  String locationMismatchFallback(int distance);
+
+  /// No description provided for @locationPermissionDenied.
+  ///
+  /// In en, this message translates to:
+  /// **'Location permission denied. Please provide a photo proof instead.'**
+  String get locationPermissionDenied;
+
+  /// No description provided for @occasionType.
+  ///
+  /// In en, this message translates to:
+  /// **'Occasion Type'**
+  String get occasionType;
+
+  /// No description provided for @customCelebration.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom Celebration'**
+  String get customCelebration;
+
+  /// No description provided for @date.
+  ///
+  /// In en, this message translates to:
+  /// **'Date'**
+  String get date;
+
+  /// No description provided for @change.
+  ///
+  /// In en, this message translates to:
+  /// **'Change'**
+  String get change;
+
+  /// No description provided for @repeatYearlyDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Auto-renews next year after passing'**
+  String get repeatYearlyDesc;
+
+  /// No description provided for @yearly.
+  ///
+  /// In en, this message translates to:
+  /// **'Yearly'**
+  String get yearly;
 }
 
 class _AppLocalizationsDelegate

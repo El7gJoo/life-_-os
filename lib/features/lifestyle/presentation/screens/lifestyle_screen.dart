@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/utils/haptic_utils.dart';
+import '../../../../core/utils/rtl_utils.dart';
 import '../../../../core/widgets/category_background_wrapper.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../cubits/lifestyle_cubit.dart';
@@ -58,13 +59,13 @@ class LifestyleScreen extends StatelessWidget {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Text(
-                                'Lifestyle Daily Score',
-                                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                              Text(
+                                l10n.lifestyleDailyScore,
+                                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                               ),
                               const SizedBox(height: 4),
                               Text(
-                                '+$totalPointsEarned points earned today',
+                                l10n.pointsEarnedToday(totalPointsEarned),
                                 style: TextStyle(color: Colors.grey[600], fontSize: 13),
                               ),
                             ],
@@ -77,7 +78,7 @@ class LifestyleScreen extends StatelessWidget {
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Text(
-                            '+$totalPointsEarned pts',
+                            RtlUtils.formatPointsBadge(totalPointsEarned),
                             style: const TextStyle(
                               color: AppColors.neonEnergyLight,
                               fontWeight: FontWeight.bold,
@@ -119,7 +120,7 @@ class LifestyleScreen extends StatelessWidget {
                                     style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                                   ),
                                   Text(
-                                    '${state.waterCups} / 8 cups ${state.waterCups >= 8 ? "🎯 Goal reached!" : ""}',
+                                    '${l10n.cupsTarget(state.waterCups, 8)} ${state.waterCups >= 8 ? l10n.goalReached : ""}',
                                     style: TextStyle(color: Colors.grey[600], fontSize: 13),
                                   ),
                                 ],
@@ -184,7 +185,7 @@ class LifestyleScreen extends StatelessWidget {
                                 style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                               ),
                               Text(
-                                '${state.healthyMeals} meals logged (+5 pts each)',
+                                l10n.mealsLoggedCount(state.healthyMeals),
                                 style: TextStyle(color: Colors.grey[600], fontSize: 13),
                               ),
                             ],
@@ -237,7 +238,7 @@ class LifestyleScreen extends StatelessWidget {
                                 style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                               ),
                               Text(
-                                state.gymSession ? 'Completed (+20 pts)' : '+20 pts when completed',
+                                state.gymSession ? l10n.completedWithPoints : l10n.pointsWhenCompleted,
                                 style: TextStyle(
                                   color: state.gymSession ? AppColors.success : Colors.grey[600],
                                   fontSize: 13,
@@ -274,7 +275,7 @@ class LifestyleScreen extends StatelessWidget {
 
                 const SizedBox(height: 24),
                 Text(
-                  'Sleep & Wake Goals',
+                  l10n.sleepWakeGoals,
                   style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 12),
@@ -289,7 +290,7 @@ class LifestyleScreen extends StatelessWidget {
                           child: Icon(Icons.bedtime, color: AppColors.midnightIndigoLight),
                         ),
                         title: Text(l10n.targetBedtime),
-                        subtitle: const Text('+10 points for sleeping on time'),
+                        subtitle: Text(l10n.pointsForSleepingOnTime),
                         trailing: ElevatedButton(
                           style: ElevatedButton.styleFrom(
                             backgroundColor: state.sleepOnTime ? AppColors.success : null,
@@ -303,7 +304,7 @@ class LifestyleScreen extends StatelessWidget {
                                     context.read<LifestyleCubit>().logSleepOnTime();
                                   }
                                 },
-                          child: Text(state.sleepOnTime ? l10n.done : 'Log'),
+                          child: Text(state.sleepOnTime ? l10n.done : l10n.add),
                         ),
                       ),
                       const Divider(height: 1),
@@ -313,7 +314,7 @@ class LifestyleScreen extends StatelessWidget {
                           child: Icon(Icons.wb_sunny, color: AppColors.neonEnergyLight),
                         ),
                         title: Text(l10n.targetWakeUp),
-                        subtitle: const Text('+10 points for waking on time'),
+                        subtitle: Text(l10n.pointsForWakingOnTime),
                         trailing: ElevatedButton(
                           style: ElevatedButton.styleFrom(
                             backgroundColor: state.wakeOnTime ? AppColors.success : null,
@@ -327,7 +328,7 @@ class LifestyleScreen extends StatelessWidget {
                                     context.read<LifestyleCubit>().logWakeOnTime();
                                   }
                                 },
-                          child: Text(state.wakeOnTime ? l10n.done : 'Log'),
+                          child: Text(state.wakeOnTime ? l10n.done : l10n.add),
                         ),
                       ),
                     ],
@@ -336,7 +337,7 @@ class LifestyleScreen extends StatelessWidget {
 
                 const SizedBox(height: 24),
                 Text(
-                  'Recent Activity',
+                  l10n.recentActivity,
                   style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 8),
@@ -344,10 +345,10 @@ class LifestyleScreen extends StatelessWidget {
                 if (state.allLogs.isEmpty)
                   Card(
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                    child: const Padding(
-                      padding: EdgeInsets.all(24),
+                    child: Padding(
+                      padding: const EdgeInsets.all(24),
                       child: Center(
-                        child: Text('No activity logged today yet.', style: TextStyle(color: Colors.grey)),
+                        child: Text(l10n.noActivityToday, style: const TextStyle(color: Colors.grey)),
                       ),
                     ),
                   )
@@ -359,7 +360,7 @@ class LifestyleScreen extends StatelessWidget {
                           child: ListTile(
                             dense: true,
                             leading: Icon(_getActivityIcon(log.type), size: 20, color: AppColors.neonEnergyLight),
-                            title: Text(_getActivityTitle(log.type)),
+                            title: Text(_getActivityTitle(context, log.type)),
                             trailing: Text(
                               DateFormat('hh:mm a').format(log.timestamp),
                               style: const TextStyle(color: Colors.grey, fontSize: 12),
@@ -392,20 +393,21 @@ class LifestyleScreen extends StatelessWidget {
     }
   }
 
-  String _getActivityTitle(String type) {
+  String _getActivityTitle(BuildContext context, String type) {
+    final l10n = AppLocalizations.of(context);
     switch (type) {
       case 'water':
-        return 'Drank 1 cup of water';
+        return l10n.activityWater;
       case 'meal':
-        return 'Healthy meal (+5 pts)';
+        return l10n.activityMeal;
       case 'workout':
-        return 'Workout session completed (+20 pts)';
+        return l10n.activityWorkout;
       case 'sleep_start':
-        return 'Slept on time (+10 pts)';
+        return l10n.activitySleep;
       case 'wake':
-        return 'Woke up on time (+10 pts)';
+        return l10n.activityWake;
       default:
-        return 'Activity logged';
+        return l10n.activityLogged;
     }
   }
 }

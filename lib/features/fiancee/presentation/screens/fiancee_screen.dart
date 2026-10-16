@@ -24,6 +24,7 @@ class _FianceeScreenState extends State<FianceeScreen> {
   String _selectedNoteCategory = 'all';
 
   Future<void> _authenticate(BuildContext context) async {
+    final l10n = AppLocalizations.of(context);
     final cubit = context.read<FianceeCubit>();
     if (kIsWeb) {
       // Web fallback: instant unlock
@@ -40,7 +41,7 @@ class _FianceeScreenState extends State<FianceeScreen> {
       }
 
       final authenticated = await localAuth.authenticate(
-        localizedReason: 'Authenticate to access Fiancée Hub',
+        localizedReason: l10n.authenticateToAccess,
         options: const AuthenticationOptions(
           stickyAuth: true,
           biometricOnly: false,
@@ -179,7 +180,7 @@ class _FianceeScreenState extends State<FianceeScreen> {
                               ),
                               const SizedBox(height: 4),
                               Text(
-                                '+15 points daily reward',
+                                l10n.pointsDailyReward(15),
                                 style: TextStyle(color: Colors.grey[600], fontSize: 13),
                               ),
                             ],
@@ -200,15 +201,15 @@ class _FianceeScreenState extends State<FianceeScreen> {
                                     final messenger = ScaffoldMessenger.of(context);
                                     await context.read<FianceeCubit>().completeQualityTime();
                                     messenger.showSnackBar(
-                                      const SnackBar(
-                                        content: Text('Quality Time logged! +15 points earned ❤️'),
-                                        duration: Duration(seconds: 2),
+                                      SnackBar(
+                                        content: Text(l10n.qualityTimeSuccess),
+                                        duration: const Duration(seconds: 2),
                                       ),
                                     );
                                   }
                                 },
                           child: Text(
-                            state.isQualityTimeCompletedToday ? l10n.done : l10n.done,
+                            l10n.done,
                             style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
                           ),
                         ),
@@ -270,7 +271,7 @@ class _FianceeScreenState extends State<FianceeScreen> {
                           style: const TextStyle(fontWeight: FontWeight.bold),
                         ),
                         subtitle: Text(
-                          '${AppDateUtils.formatDisplayDate(occasion.nextOccurrence)}${occasion.repeatYearly ? ' • Yearly' : ''}${occasion.notes != null && occasion.notes!.isNotEmpty ? '\n${occasion.notes}' : ''}',
+                          '${AppDateUtils.formatDisplayDate(occasion.nextOccurrence)}${occasion.repeatYearly ? ' • ${l10n.yearly}' : ''}${occasion.notes != null && occasion.notes!.isNotEmpty ? '\n${occasion.notes}' : ''}',
                         ),
                         isThreeLine: occasion.notes != null && occasion.notes!.isNotEmpty,
                         trailing: Row(
@@ -280,16 +281,16 @@ class _FianceeScreenState extends State<FianceeScreen> {
                               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                               decoration: BoxDecoration(
                                 color: isUpcoming
-                                    ? AppColors.romanticRoseLight.withValues(alpha: 0.15)
+                                     ? AppColors.romanticRoseLight.withValues(alpha: 0.15)
                                     : Colors.grey.withValues(alpha: 0.15),
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               child: Text(
                                 days == 0
-                                    ? 'Today!'
+                                    ? l10n.todayExclamation
                                     : isUpcoming
-                                        ? '$days days'
-                                        : 'Passed',
+                                        ? l10n.daysLeft(days)
+                                        : l10n.passed,
                                 style: TextStyle(
                                   color: isUpcoming ? AppColors.romanticRoseLight : Colors.grey,
                                   fontWeight: FontWeight.bold,
@@ -326,31 +327,32 @@ class _FianceeScreenState extends State<FianceeScreen> {
                 ),
                 const SizedBox(height: 8),
 
-                // Category Filter Chips
+                // Category Filter Chips (horizontal scrollable to avoid truncation)
                 SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
+                  physics: const BouncingScrollPhysics(),
                   child: Row(
                     children: [
                       ChoiceChip(
-                        label: const Text('All'),
+                        label: Text(l10n.all),
                         selected: _selectedNoteCategory == 'all',
                         onSelected: (_) => setState(() => _selectedNoteCategory = 'all'),
                       ),
                       const SizedBox(width: 8),
                       ChoiceChip(
-                        label: const Text('Gift Ideas 🎁'),
+                        label: Text(l10n.giftIdeas),
                         selected: _selectedNoteCategory == 'gift_idea',
                         onSelected: (_) => setState(() => _selectedNoteCategory = 'gift_idea'),
                       ),
                       const SizedBox(width: 8),
                       ChoiceChip(
-                        label: const Text('She Likes ✨'),
+                        label: Text(l10n.sheLikes),
                         selected: _selectedNoteCategory == 'she_likes',
                         onSelected: (_) => setState(() => _selectedNoteCategory = 'she_likes'),
                       ),
                       const SizedBox(width: 8),
                       ChoiceChip(
-                        label: const Text('Notes 📝'),
+                        label: Text(l10n.notesCategory),
                         selected: _selectedNoteCategory == 'note',
                         onSelected: (_) => setState(() => _selectedNoteCategory = 'note'),
                       ),
@@ -384,7 +386,7 @@ class _FianceeScreenState extends State<FianceeScreen> {
                         ),
                         title: Text(note.content),
                         subtitle: Text(
-                          '${_getNoteCategoryLabel(note.category)} • ${AppDateUtils.formatDisplayDate(note.dateAdded)}',
+                          '${_getNoteCategoryLabel(context, note.category)} • ${AppDateUtils.formatDisplayDate(note.dateAdded)}',
                         ),
                         trailing: IconButton(
                           icon: const Icon(Icons.delete_outline, size: 20, color: Colors.grey),
@@ -425,14 +427,15 @@ class _FianceeScreenState extends State<FianceeScreen> {
     }
   }
 
-  String _getNoteCategoryLabel(String category) {
+  String _getNoteCategoryLabel(BuildContext context, String category) {
+    final l10n = AppLocalizations.of(context);
     switch (category) {
       case 'gift_idea':
-        return 'Gift Idea';
+        return l10n.giftIdeas;
       case 'she_likes':
-        return 'She Likes';
+        return l10n.sheLikes;
       default:
-        return 'Note';
+        return l10n.notesCategory;
     }
   }
 
@@ -442,7 +445,7 @@ class _FianceeScreenState extends State<FianceeScreen> {
       context: context,
       builder: (_) => AlertDialog(
         title: Text(l10n.delete),
-        content: Text('Delete occasion "${occasion.name}"? Scheduled notifications will also be cancelled.'),
+        content: Text(l10n.deleteOccasionConfirm(occasion.name)),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
@@ -491,15 +494,15 @@ class _FianceeScreenState extends State<FianceeScreen> {
                 const SizedBox(height: 12),
                 DropdownButtonFormField<String>(
                   initialValue: selectedType,
-                  decoration: const InputDecoration(
-                    labelText: 'Occasion Type',
-                    border: OutlineInputBorder(),
+                  decoration: InputDecoration(
+                    labelText: l10n.occasionType,
+                    border: const OutlineInputBorder(),
                   ),
-                  items: const [
-                    DropdownMenuItem(value: 'birthday', child: Text('Birthday 🎂')),
-                    DropdownMenuItem(value: 'anniversary', child: Text('Anniversary 💍')),
-                    DropdownMenuItem(value: 'planned_date', child: Text('Planned Date 🌹')),
-                    DropdownMenuItem(value: 'custom', child: Text('Custom Celebration 🎉')),
+                  items: [
+                    DropdownMenuItem(value: 'birthday', child: Text('${l10n.birthday} 🎂')),
+                    DropdownMenuItem(value: 'anniversary', child: Text('${l10n.anniversary} 💍')),
+                    DropdownMenuItem(value: 'planned_date', child: Text('${l10n.plannedDate} 🌹')),
+                    DropdownMenuItem(value: 'custom', child: Text('${l10n.customCelebration} 🎉')),
                   ],
                   onChanged: (val) {
                     if (val != null) setDialogState(() => selectedType = val);
@@ -509,7 +512,7 @@ class _FianceeScreenState extends State<FianceeScreen> {
                 ListTile(
                   contentPadding: EdgeInsets.zero,
                   leading: const Icon(Icons.calendar_today, color: AppColors.romanticRoseLight),
-                  title: const Text('Date'),
+                  title: Text(l10n.date),
                   subtitle: Text(AppDateUtils.formatDisplayDate(selectedDate)),
                   trailing: TextButton(
                     onPressed: () async {
@@ -523,13 +526,13 @@ class _FianceeScreenState extends State<FianceeScreen> {
                         setDialogState(() => selectedDate = picked);
                       }
                     },
-                    child: const Text('Change'),
+                    child: Text(l10n.change),
                   ),
                 ),
                 SwitchListTile(
                   contentPadding: EdgeInsets.zero,
-                  title: const Text('Repeat Yearly'),
-                  subtitle: const Text('Auto-renews next year after passing'),
+                  title: Text(l10n.repeatYearly),
+                  subtitle: Text(l10n.repeatYearlyDesc),
                   value: repeatYearly,
                   onChanged: (val) => setDialogState(() => repeatYearly = val),
                 ),
@@ -598,14 +601,14 @@ class _FianceeScreenState extends State<FianceeScreen> {
             children: [
               DropdownButtonFormField<String>(
                 initialValue: selectedCategory,
-                decoration: const InputDecoration(
-                  labelText: 'Category',
-                  border: OutlineInputBorder(),
+                decoration: InputDecoration(
+                  labelText: l10n.category,
+                  border: const OutlineInputBorder(),
                 ),
-                items: const [
-                  DropdownMenuItem(value: 'gift_idea', child: Text('Gift Idea 🎁')),
-                  DropdownMenuItem(value: 'she_likes', child: Text('She Likes ✨')),
-                  DropdownMenuItem(value: 'note', child: Text('General Note 📝')),
+                items: [
+                  DropdownMenuItem(value: 'gift_idea', child: Text(l10n.giftIdeas)),
+                  DropdownMenuItem(value: 'she_likes', child: Text(l10n.sheLikes)),
+                  DropdownMenuItem(value: 'note', child: Text(l10n.notesCategory)),
                 ],
                 onChanged: (val) {
                   if (val != null) setDialogState(() => selectedCategory = val);
@@ -618,7 +621,7 @@ class _FianceeScreenState extends State<FianceeScreen> {
                 maxLines: 3,
                 decoration: InputDecoration(
                   labelText: l10n.notes,
-                  hintText: 'e.g. Favorite perfume, bracelet size, flowers she loves...',
+                  hintText: l10n.giftIdeaNoteHint,
                   border: const OutlineInputBorder(),
                 ),
               ),

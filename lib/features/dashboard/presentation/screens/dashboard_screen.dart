@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/utils/date_utils.dart';
 import '../../../../core/utils/haptic_utils.dart';
+import '../../../../core/utils/rtl_utils.dart';
 import '../../../../core/widgets/ask_before_deducting_banner.dart';
 import '../../../../core/widgets/category_background_wrapper.dart';
 import '../../../../core/widgets/morning_check_in_modal.dart';
@@ -247,7 +248,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                               style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
                             ),
                             Text(
-                              '${state.remainingPocket.toStringAsFixed(1)} ${state.currency}',
+                              RtlUtils.formatCurrency(state.remainingPocket, state.currency),
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 16,
@@ -275,11 +276,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
-                              '${l10n.totalSpent}: ${state.totalSpentToday.toStringAsFixed(1)}',
+                              '${l10n.totalSpent}: ${RtlUtils.formatCurrency(state.totalSpentToday, state.currency)}',
                               style: theme.textTheme.bodySmall?.copyWith(color: Colors.grey),
                             ),
                             Text(
-                              '${l10n.startingBalance}: ${state.startingBalance.toStringAsFixed(1)}',
+                              '${l10n.startingBalance}: ${RtlUtils.formatCurrency(state.startingBalance, state.currency, decimals: 0)}',
                               style: theme.textTheme.bodySmall?.copyWith(color: Colors.grey),
                             ),
                           ],
@@ -320,7 +321,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Text(
-                        days >= 0 ? '$days days left' : 'Passed',
+                        days == 0
+                            ? l10n.todayExclamation
+                            : days > 0
+                                ? l10n.daysLeft(days)
+                                : l10n.passed,
                         style: const TextStyle(
                           color: AppColors.romanticRoseLight,
                           fontWeight: FontWeight.bold,
@@ -347,17 +352,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         _buildStatChip(
                           icon: Icons.water_drop,
                           color: AppColors.info,
-                          label: '${state.waterCups} cups',
+                          label: l10n.waterCups(state.waterCups),
                         ),
                         _buildStatChip(
                           icon: Icons.restaurant,
                           color: AppColors.emeraldGreenLight,
-                          label: '${state.healthyMeals} meals',
+                          label: '${RtlUtils.ltr(state.healthyMeals)} ${l10n.meals}',
                         ),
                         _buildStatChip(
                           icon: Icons.fitness_center,
                           color: AppColors.neonEnergyLight,
-                          label: state.gymSession ? 'Workout Done' : 'No Gym Yet',
+                          label: state.gymSession ? l10n.done : l10n.gymSession,
                         ),
                       ],
                     ),

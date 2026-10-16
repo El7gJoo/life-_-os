@@ -21,6 +21,23 @@ class SettingsCubit extends Cubit<SettingsState> {
           lastBackupDate: _settingsRepository.getLastBackupDate(),
         ));
 
+  void refresh() {
+    emit(SettingsState(
+      languageCode: _settingsRepository.getLanguageCode(),
+      dayBoundaryHour: _settingsRepository.getDayBoundaryHour(),
+      prepTimeMinutes: _settingsRepository.getPrepTimeMinutes(),
+      currency: _settingsRepository.getCurrency(),
+      isOnboardingComplete: _settingsRepository.isOnboardingComplete(),
+      isBiometricEnabled: _settingsRepository.isBiometricEnabled(),
+      startingBalance: _settingsRepository.getStartingBalance(),
+      weeklyBudget: _settingsRepository.getWeeklyBudget(),
+      monthlyBudget: _settingsRepository.getMonthlyBudget(),
+      savingsVault: _settingsRepository.getSavingsVault(),
+      streakFreezeWeek: _settingsRepository.getStreakFreezeWeek(),
+      lastBackupDate: _settingsRepository.getLastBackupDate(),
+    ));
+  }
+
   Future<void> setLanguageCode(String code) async {
     await _settingsRepository.setLanguageCode(code);
     emit(state.copyWith(languageCode: code));

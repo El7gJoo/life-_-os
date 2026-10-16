@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_constants.dart';
+import '../../../../core/utils/rtl_utils.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../cubits/gamification_cubit.dart';
 import '../cubits/gamification_state.dart';
@@ -70,7 +71,7 @@ class GamificationBar extends StatelessWidget {
                       const Icon(Icons.stars_rounded, color: AppColors.goldColor, size: 24),
                       const SizedBox(width: 8),
                       Text(
-                        '$currentPoints ${l10n.points}',
+                        '${RtlUtils.ltr(currentPoints)} ${l10n.points}',
                         style: theme.textTheme.titleMedium?.copyWith(
                           fontWeight: FontWeight.bold,
                         ),
@@ -89,7 +90,7 @@ class GamificationBar extends StatelessWidget {
                             color: AppColors.neonEnergyLight, size: 18),
                         const SizedBox(width: 4),
                         Text(
-                          '$streak ${l10n.streak}',
+                          l10n.streakDays(streak),
                           style: theme.textTheme.labelMedium?.copyWith(
                             color: AppColors.neonEnergyLight,
                             fontWeight: FontWeight.bold,
@@ -98,7 +99,7 @@ class GamificationBar extends StatelessWidget {
                         if (multiplier > 1.0) ...[
                           const SizedBox(width: 4),
                           Text(
-                            '(${multiplier}x)',
+                            RtlUtils.ltr('(${multiplier}x)'),
                             style: theme.textTheme.labelSmall?.copyWith(
                               color: AppColors.neonEnergyLight,
                               fontWeight: FontWeight.w700,
@@ -125,11 +126,11 @@ class GamificationBar extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    'Next: $nextTier ($targetPoints pts)',
+                    '$nextTier (${RtlUtils.ltr(targetPoints)} pts)',
                     style: theme.textTheme.bodySmall?.copyWith(color: Colors.grey),
                   ),
                   Text(
-                    '${(progress * 100).toInt()}%',
+                    RtlUtils.ltr('${(progress * 100).toInt()}%'),
                     style: theme.textTheme.bodySmall?.copyWith(color: Colors.grey),
                   ),
                 ],
