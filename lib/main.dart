@@ -21,8 +21,6 @@ import 'features/schedule_study/presentation/cubits/schedule_cubit.dart';
 import 'features/schedule_study/presentation/screens/schedule_screen.dart';
 import 'features/settings_backup/presentation/cubits/settings_cubit.dart';
 import 'features/settings_backup/presentation/cubits/settings_state.dart';
-import 'features/settings_backup/presentation/screens/settings_screen.dart';
-import 'features/stats/presentation/screens/stats_screen.dart';
 import 'l10n/app_localizations.dart';
 import 'features/gamification/data/repositories/gamification_repository.dart';
 import 'services/notification_service.dart';
@@ -128,47 +126,8 @@ class _MainNavigationScaffoldState extends State<MainNavigationScaffold> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(l10n.appTitle),
-        actions: [
-          IconButton(
-            tooltip: l10n.language,
-            icon: const Icon(Icons.language),
-            onPressed: () {
-              context.read<SettingsCubit>().toggleLanguage();
-            },
-          ),
-          IconButton(
-            tooltip: l10n.theme,
-            icon: Icon(isDark ? Icons.light_mode : Icons.dark_mode),
-            onPressed: () {
-              context.read<ThemeCubit>().toggleTheme();
-            },
-          ),
-          IconButton(
-            tooltip: l10n.stats,
-            icon: const Icon(Icons.bar_chart),
-            onPressed: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => const StatsScreen()),
-              );
-            },
-          ),
-          IconButton(
-            tooltip: l10n.settings,
-            icon: const Icon(Icons.settings),
-            onPressed: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => const SettingsScreen()),
-              );
-            },
-          ),
-        ],
-      ),
       body: IndexedStack(
         index: _currentIndex,
         children: _screens,

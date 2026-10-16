@@ -18,6 +18,7 @@ class OnboardingScreen extends StatefulWidget {
 class _OnboardingScreenState extends State<OnboardingScreen> {
   final PageController _pageController = PageController();
   int _currentPage = 0;
+  final int _totalPages = 4;
 
   @override
   void dispose() {
@@ -47,7 +48,14 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            const Icon(Icons.rocket_launch, size: 80, color: AppColors.primary),
+                            Container(
+                              padding: const EdgeInsets.all(24),
+                              decoration: BoxDecoration(
+                                color: AppColors.primary.withValues(alpha: 0.12),
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(Icons.rocket_launch, size: 72, color: AppColors.primary),
+                            ),
                             const SizedBox(height: 24),
                             Text(
                               l10n.onboardingWelcome,
@@ -63,7 +71,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                               textAlign: TextAlign.center,
                             ),
                             const SizedBox(height: 36),
-                            Text(l10n.onboardingLanguage, style: theme.textTheme.titleMedium),
+                            Text(
+                              l10n.onboardingLanguage,
+                              style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                            ),
                             const SizedBox(height: 16),
                             SegmentedButton<String>(
                               segments: [
@@ -85,7 +96,14 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            const Icon(Icons.palette_outlined, size: 80, color: AppColors.primary),
+                            Container(
+                              padding: const EdgeInsets.all(24),
+                              decoration: BoxDecoration(
+                                color: AppColors.neonEnergyLight.withValues(alpha: 0.12),
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(Icons.palette_outlined, size: 72, color: AppColors.neonEnergyLight),
+                            ),
                             const SizedBox(height: 24),
                             Text(
                               l10n.onboardingTheme,
@@ -114,11 +132,129 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                               ],
                             ),
                             const SizedBox(height: 36),
-                            Text(l10n.onboardingDayBoundary, style: theme.textTheme.titleMedium),
+                            Text(
+                              l10n.onboardingDayBoundary,
+                              style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                            ),
                             const SizedBox(height: 8),
                             Text(
-                              l10n.dayBoundaryHint,
+                              '${l10n.dayBoundaryHint} (Configured to ${state.dayBoundaryHour}:00 AM)',
                               style: theme.textTheme.bodySmall?.copyWith(color: Colors.grey),
+                              textAlign: TextAlign.center,
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      // Page 3: Prep Time & Currency
+                      Padding(
+                        padding: const EdgeInsets.all(24),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(24),
+                              decoration: BoxDecoration(
+                                color: AppColors.emeraldGreenLight.withValues(alpha: 0.12),
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(Icons.tune, size: 72, color: AppColors.emeraldGreenLight),
+                            ),
+                            const SizedBox(height: 24),
+                            Text(
+                              'Routine & Currency',
+                              style: theme.textTheme.headlineSmall?.copyWith(
+                                fontWeight: FontWeight.bold,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                            const SizedBox(height: 24),
+                            ListTile(
+                              leading: const Icon(Icons.timer_outlined, color: AppColors.primary),
+                              title: Text(l10n.prepTime),
+                              subtitle: Text(l10n.prepTimeMinutes(state.prepTimeMinutes)),
+                              trailing: DropdownButton<int>(
+                                value: state.prepTimeMinutes,
+                                items: const [
+                                  DropdownMenuItem(value: 30, child: Text('30m')),
+                                  DropdownMenuItem(value: 45, child: Text('45m')),
+                                  DropdownMenuItem(value: 60, child: Text('60m')),
+                                  DropdownMenuItem(value: 90, child: Text('90m')),
+                                ],
+                                onChanged: (val) {
+                                  if (val != null) {
+                                    context.read<SettingsCubit>().setPrepTimeMinutes(val);
+                                  }
+                                },
+                              ),
+                            ),
+                            const Divider(),
+                            ListTile(
+                              leading: const Icon(Icons.monetization_on, color: AppColors.emeraldGreenLight),
+                              title: Text(l10n.currency),
+                              subtitle: Text(state.currency),
+                              trailing: DropdownButton<String>(
+                                value: state.currency,
+                                items: const [
+                                  DropdownMenuItem(value: 'EGP', child: Text('EGP (ج.م)')),
+                                  DropdownMenuItem(value: 'USD', child: Text('USD (\$)')),
+                                  DropdownMenuItem(value: 'EUR', child: Text('EUR (€)')),
+                                  DropdownMenuItem(value: 'SAR', child: Text('SAR (ر.س)')),
+                                  DropdownMenuItem(value: 'AED', child: Text('AED (د.إ)')),
+                                ],
+                                onChanged: (val) {
+                                  if (val != null) {
+                                    context.read<SettingsCubit>().setCurrency(val);
+                                  }
+                                },
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      // Page 4: Gamification & Rules Preview
+                      Padding(
+                        padding: const EdgeInsets.all(24),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(24),
+                              decoration: BoxDecoration(
+                                color: AppColors.goldColor.withValues(alpha: 0.15),
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(Icons.emoji_events, size: 72, color: AppColors.goldColor),
+                            ),
+                            const SizedBox(height: 20),
+                            Text(
+                              'Gamify Your Life',
+                              style: theme.textTheme.headlineSmall?.copyWith(
+                                fontWeight: FontWeight.bold,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                            const SizedBox(height: 16),
+                            _buildFeatureBullet(
+                              icon: Icons.local_fire_department,
+                              color: Colors.orange,
+                              title: 'Streak Multipliers',
+                              desc: 'Earn up to 2.0x points as your consecutive daily streak grows!',
+                            ),
+                            const SizedBox(height: 10),
+                            _buildFeatureBullet(
+                              icon: Icons.ac_unit,
+                              color: Colors.cyan,
+                              title: 'Streak Freeze Protection',
+                              desc: 'One automated streak freeze keeps your momentum safe.',
+                            ),
+                            const SizedBox(height: 10),
+                            _buildFeatureBullet(
+                              icon: Icons.card_giftcard,
+                              color: AppColors.romanticRoseLight,
+                              title: 'Tiered Random Rewards',
+                              desc: 'Unlock Bronze, Silver, Gold, and Platinum real-life rewards!',
                             ),
                           ],
                         ),
@@ -147,22 +283,22 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       // Indicators
                       Row(
                         children: List.generate(
-                          2,
+                          _totalPages,
                           (index) => Container(
                             margin: const EdgeInsets.symmetric(horizontal: 4),
-                            width: _currentPage == index ? 20 : 8,
+                            width: _currentPage == index ? 22 : 8,
                             height: 8,
                             decoration: BoxDecoration(
                               color: _currentPage == index
                                   ? AppColors.primary
-                                  : Colors.grey[300],
+                                  : Colors.grey.withValues(alpha: 0.3),
                               borderRadius: BorderRadius.circular(4),
                             ),
                           ),
                         ),
                       ),
 
-                      if (_currentPage < 1)
+                      if (_currentPage < _totalPages - 1)
                         ElevatedButton(
                           onPressed: () => _pageController.nextPage(
                             duration: const Duration(milliseconds: 300),
@@ -172,11 +308,18 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                         )
                       else
                         ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.primary,
+                            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                          ),
                           onPressed: () async {
                             await context.read<SettingsCubit>().setOnboardingComplete(true);
                             widget.onComplete();
                           },
-                          child: Text(l10n.getStarted),
+                          child: Text(
+                            l10n.getStarted,
+                            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                          ),
                         ),
                     ],
                   ),
@@ -186,6 +329,38 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           },
         ),
       ),
+    );
+  }
+
+  Widget _buildFeatureBullet({
+    required IconData icon,
+    required Color color,
+    required String title,
+    required String desc,
+  }) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: color.withValues(alpha: 0.15),
+            shape: BoxShape.circle,
+          ),
+          child: Icon(icon, color: color, size: 20),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+              const SizedBox(height: 2),
+              Text(desc, style: const TextStyle(color: Colors.grey, fontSize: 12)),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }
