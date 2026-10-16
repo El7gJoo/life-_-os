@@ -13,6 +13,11 @@ class SettingsState extends Equatable {
   final double savingsVault;
   final String? streakFreezeWeek;
   final DateTime? lastBackupDate;
+  final String? geminiApiKey;
+  final bool isRequireProof;
+  final double? universityLat;
+  final double? universityLng;
+  final int universityRadius;
 
   const SettingsState({
     required this.languageCode,
@@ -27,6 +32,11 @@ class SettingsState extends Equatable {
     required this.savingsVault,
     this.streakFreezeWeek,
     this.lastBackupDate,
+    this.geminiApiKey,
+    this.isRequireProof = false,
+    this.universityLat,
+    this.universityLng,
+    this.universityRadius = 300,
   });
 
   SettingsState copyWith({
@@ -42,6 +52,11 @@ class SettingsState extends Equatable {
     double? savingsVault,
     String? streakFreezeWeek,
     DateTime? lastBackupDate,
+    String? Function()? geminiApiKey,
+    bool? isRequireProof,
+    double? Function()? universityLat,
+    double? Function()? universityLng,
+    int? universityRadius,
   }) {
     return SettingsState(
       languageCode: languageCode ?? this.languageCode,
@@ -56,6 +71,11 @@ class SettingsState extends Equatable {
       savingsVault: savingsVault ?? this.savingsVault,
       streakFreezeWeek: streakFreezeWeek ?? this.streakFreezeWeek,
       lastBackupDate: lastBackupDate ?? this.lastBackupDate,
+      geminiApiKey: geminiApiKey != null ? geminiApiKey() : this.geminiApiKey,
+      isRequireProof: isRequireProof ?? this.isRequireProof,
+      universityLat: universityLat != null ? universityLat() : this.universityLat,
+      universityLng: universityLng != null ? universityLng() : this.universityLng,
+      universityRadius: universityRadius ?? this.universityRadius,
     );
   }
 
@@ -73,5 +93,10 @@ class SettingsState extends Equatable {
         savingsVault,
         streakFreezeWeek,
         lastBackupDate,
+        geminiApiKey,
+        isRequireProof,
+        universityLat,
+        universityLng,
+        universityRadius,
       ];
 }

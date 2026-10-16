@@ -210,7 +210,10 @@ class ScheduleCubit extends Cubit<ScheduleState> {
   }
 
   // Attendance Anti-Cheat & Tracking
-  Future<String?> checkInAttendance(ClassSession session) async {
+  Future<String?> checkInAttendance(
+    ClassSession session, {
+    String? verifiedReason,
+  }) async {
     final now = DateTime.now();
     final todayStr = '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
 
@@ -244,7 +247,7 @@ class ScheduleCubit extends Cubit<ScheduleState> {
 
     final ledgerEntry = LedgerEntryModel(
       points: 10,
-      reason: 'Attended $subjectName ($typeName)',
+      reason: verifiedReason ?? 'Attended $subjectName ($typeName)',
       sourceFeature: 'schedule',
       timestamp: now,
     );

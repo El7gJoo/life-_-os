@@ -3,14 +3,19 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
+import 'package:geolocator/geolocator.dart';
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/di/injection.dart';
 import '../../../../core/utils/haptic_utils.dart';
 import '../../../../core/utils/rtl_utils.dart';
 import '../../../../core/widgets/category_background_wrapper.dart';
 import '../../../../l10n/app_localizations.dart';
+import '../../../../services/proof_service.dart';
+import '../../../settings_backup/data/repositories/settings_repository.dart';
 import '../../data/models/schedule_item_model.dart';
 import '../cubits/schedule_cubit.dart';
 import '../cubits/schedule_state.dart';
+import '../widgets/proof_capture_dialog.dart';
 import 'subjects_screen.dart';
 import 'timetable_screen.dart';
 
@@ -204,29 +209,121 @@ class ScheduleScreen extends StatelessWidget {
                                 ),
                                 onPressed: () async {
                                   final cubit = context.read<ScheduleCubit>();
+                                  final settingsRepo = getIt<SettingsRepository>();
                                   final messenger = ScaffoldMessenger.of(context);
                                   await HapticUtils.heavyImpact();
-                                  final error = await cubit.checkInAttendance(session);
-                                  if (error != null) {
-                                    messenger.showSnackBar(
-                                      SnackBar(
-                                        content: Text(
-                                          error == 'Attendance allowed after session starts'
-                                              ? l10n.attendanceBeforeStart
-                                              : error == 'Already marked as attended'
-                                                  ? l10n.alreadyAttended
-                                                  : error,
-                                        ),
-                                        backgroundColor: AppColors.warning,
-                                      ),
-                                    );
+
+                                  if (settingsRepo.isRequireProofEnabled()) {
+                                    bool verifiedViaGps = false;
+                                    // 1. Try GPS location check
+                                    try {
+                                      LocationPermission perm = await Geolocator.checkPermission();
+                                      if (perm == LocationPermission.denied) {
+                                        perm = await Geolocator.requestPermission();
+                                      }
+                                      if (perm != LocationPermission.denied && perm != LocationPermission.deniedForever) {
+                                        final pos = await Geolocator.getCurrentPosition(
+                                          locationSettings: const LocationSettings(
+                                            accuracy: LocationAccuracy.high,
+                                            timeLimit: Duration(seconds: 4),
+                                          ),
+                                        );
+                                        final gpsResult = getIt<ProofService>().verifyAttendanceLocation(
+                                          currentLat: pos.latitude,
+                                          currentLng: pos.longitude,
+                                        );
+                                        if (gpsResult.isValid) {
+                                          verifiedViaGps = true;
+                                          final error = await cubit.checkInAttendance(
+                                            session,
+                                            verifiedReason: 'Verified attendance via location',
+                                          );
+                                          if (error != null) {
+                                            messenger.showSnackBar(
+                                              SnackBar(content: Text(error), backgroundColor: AppColors.warning),
+                                            );
+                                          } else {
+                                            messenger.showSnackBar(
+                                              SnackBar(
+                                                content: Text('${l10n.proofVerified} (+10 pts)'),
+                                                backgroundColor: AppColors.emeraldGreenLight,
+                                              ),
+                                            );
+                                          }
+                                          return;
+                                        } else {
+                                          final savedLat = settingsRepo.getUniversityLatitude() ?? 0;
+                                          final savedLng = settingsRepo.getUniversityLongitude() ?? 0;
+                                          final dist = ProofService.calculateDistanceMeters(
+                                            pos.latitude,
+                                            pos.longitude,
+                                            savedLat,
+                                            savedLng,
+                                          ).toInt();
+                                          messenger.showSnackBar(
+                                            SnackBar(content: Text(l10n.locationMismatchFallback(dist))),
+                                          );
+                                        }
+                                      } else {
+                                        messenger.showSnackBar(
+                                          SnackBar(content: Text(l10n.locationPermissionDenied)),
+                                        );
+                                      }
+                                    } catch (_) {
+                                      // Location error or timeout: fall back to camera
+                                    }
+
+                                    // 2. Fall back to Camera photo proof
+                                    if (!verifiedViaGps && context.mounted) {
+                                      final passed = await ProofCaptureDialog.show(
+                                        context,
+                                        type: 'attendance',
+                                        targetId: session.id,
+                                        subjectName: subject?.name,
+                                      );
+                                      if (passed && context.mounted) {
+                                        final error = await cubit.checkInAttendance(
+                                          session,
+                                          verifiedReason: 'Verified attendance via photo proof',
+                                        );
+                                        if (error != null) {
+                                          messenger.showSnackBar(
+                                            SnackBar(content: Text(error), backgroundColor: AppColors.warning),
+                                          );
+                                        } else {
+                                          messenger.showSnackBar(
+                                            SnackBar(
+                                              content: Text('${l10n.proofVerified} (+10 pts)'),
+                                              backgroundColor: AppColors.emeraldGreenLight,
+                                            ),
+                                          );
+                                        }
+                                      }
+                                    }
                                   } else {
-                                    messenger.showSnackBar(
-                                      SnackBar(
-                                        content: Text('${l10n.attended}! +10 pts 🎉'),
-                                        backgroundColor: AppColors.emeraldGreenLight,
-                                      ),
-                                    );
+                                    // Regular check-in when proof is OFF
+                                    final error = await cubit.checkInAttendance(session);
+                                    if (error != null) {
+                                      messenger.showSnackBar(
+                                        SnackBar(
+                                          content: Text(
+                                            error == 'Attendance allowed after session starts'
+                                                ? l10n.attendanceBeforeStart
+                                                : error == 'Already marked as attended'
+                                                    ? l10n.alreadyAttended
+                                                    : error,
+                                          ),
+                                          backgroundColor: AppColors.warning,
+                                        ),
+                                      );
+                                    } else {
+                                      messenger.showSnackBar(
+                                        SnackBar(
+                                          content: Text('${l10n.attended}! +10 pts 🎉'),
+                                          backgroundColor: AppColors.emeraldGreenLight,
+                                        ),
+                                      );
+                                    }
                                   }
                                 },
                                 child: Text(
@@ -686,12 +783,25 @@ class _PomodoroTimerDialogState extends State<_PomodoroTimerDialog> {
 
   Future<void> _onComplete() async {
     await HapticUtils.heavyImpact();
+    final settingsRepo = getIt<SettingsRepository>();
+    if (settingsRepo.isRequireProofEnabled()) {
+      if (!mounted) return;
+      final passed = await ProofCaptureDialog.show(
+        context,
+        type: 'study',
+        targetId: widget.item.id,
+        subjectName: widget.item.title,
+      );
+      if (!passed || !mounted) return;
+    }
+
     if (mounted) {
+      final l10n = AppLocalizations.of(context);
       context.read<ScheduleCubit>().completePomodoro(widget.item.id);
       Navigator.of(context).pop();
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Pomodoro Completed! +20 points awarded! 🎉'),
+        SnackBar(
+          content: Text('${l10n.taskCompleted} +20 pts 🎉'),
           backgroundColor: AppColors.success,
         ),
       );

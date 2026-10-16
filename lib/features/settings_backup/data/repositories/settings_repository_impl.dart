@@ -131,7 +131,7 @@ class SettingsRepositoryImpl implements SettingsRepository {
 
   @override
   bool isRequireProofEnabled() =>
-      _box.get(AppConstants.requireProofKey) as bool? ?? true;
+      _box.get(AppConstants.requireProofKey) as bool? ?? false;
 
   @override
   Future<void> setRequireProofEnabled(bool value) =>
@@ -160,9 +160,16 @@ class SettingsRepositoryImpl implements SettingsRepository {
       _box.put(AppConstants.universityRadiusKey, meters);
 
   @override
-  Map<String, dynamic> exportAll() => Map<String, dynamic>.from(_box.toMap().map(
-    (k, v) => MapEntry(k.toString(), v),
-  ));
+  Map<String, dynamic> exportAll() {
+    final map = Map<String, dynamic>.from(_box.toMap().map(
+      (k, v) => MapEntry(k.toString(), v),
+    ));
+    map.remove(AppConstants.geminiApiKey);
+    map.remove(AppConstants.universityLatKey);
+    map.remove(AppConstants.universityLngKey);
+    map.remove(AppConstants.universityRadiusKey);
+    return map;
+  }
 
   @override
   Future<void> importAll(Map<String, dynamic> data) async {

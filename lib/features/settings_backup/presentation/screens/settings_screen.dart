@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
+import 'package:geolocator/geolocator.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/di/injection.dart';
 import '../../../../core/theme/theme_cubit.dart';
 import '../../../../core/utils/rtl_utils.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../../services/mock_data_seeder.dart';
+import '../../../../services/proof_service.dart';
 import '../../../../services/storage_service.dart';
+import 'proof_history_screen.dart';
 import '../../../fiancee/data/repositories/fiancee_repository.dart';
 import '../../../fiancee/presentation/cubits/fiancee_cubit.dart';
 import '../../../finance/data/repositories/finance_repository.dart';
@@ -203,6 +206,11 @@ class SettingsScreen extends StatelessWidget {
                   },
                 ),
               ),
+
+              const SizedBox(height: 24),
+
+              // Gemini Proof & University Location Section
+              _GeminiProofSection(state: state),
 
               const SizedBox(height: 24),
 
@@ -510,5 +518,226 @@ class SettingsScreen extends StatelessWidget {
         SnackBar(content: Text(l10n.seedingFailed(e.toString()))),
       );
     }
+  }
+}
+
+class _GeminiProofSection extends StatefulWidget {
+  final SettingsState state;
+
+  const _GeminiProofSection({required this.state});
+
+  @override
+  State<_GeminiProofSection> createState() => _GeminiProofSectionState();
+}
+
+class _GeminiProofSectionState extends State<_GeminiProofSection> {
+  late TextEditingController _apiKeyController;
+  bool _isObscured = true;
+  bool _isTestingKey = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _apiKeyController = TextEditingController(text: widget.state.geminiApiKey ?? '');
+  }
+
+  @override
+  void didUpdateWidget(covariant _GeminiProofSection oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.state.geminiApiKey != widget.state.geminiApiKey) {
+      if (_apiKeyController.text != (widget.state.geminiApiKey ?? '')) {
+        _apiKeyController.text = widget.state.geminiApiKey ?? '';
+      }
+    }
+  }
+
+  @override
+  void dispose() {
+    _apiKeyController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _testKey() async {
+    final l10n = AppLocalizations.of(context);
+    final messenger = ScaffoldMessenger.of(context);
+    final key = _apiKeyController.text.trim();
+    if (key.isEmpty) return;
+
+    setState(() => _isTestingKey = true);
+    final success = await getIt<ProofService>().testApiKey(key);
+    if (!mounted) return;
+    setState(() => _isTestingKey = false);
+
+    messenger.showSnackBar(
+      SnackBar(
+        content: Text(success ? l10n.keyValid : l10n.keyInvalid),
+        backgroundColor: success ? AppColors.emeraldGreenLight : AppColors.error,
+      ),
+    );
+  }
+
+  Future<void> _saveLocation() async {
+    final l10n = AppLocalizations.of(context);
+    final messenger = ScaffoldMessenger.of(context);
+
+    try {
+      LocationPermission perm = await Geolocator.checkPermission();
+      if (perm == LocationPermission.denied) {
+        perm = await Geolocator.requestPermission();
+      }
+      if (perm == LocationPermission.denied || perm == LocationPermission.deniedForever) {
+        messenger.showSnackBar(
+          SnackBar(content: Text(l10n.locationPermissionDenied), backgroundColor: AppColors.error),
+        );
+        return;
+      }
+
+      final pos = await Geolocator.getCurrentPosition(
+        locationSettings: const LocationSettings(
+          accuracy: LocationAccuracy.high,
+          timeLimit: Duration(seconds: 5),
+        ),
+      );
+
+      if (mounted) {
+        await context.read<SettingsCubit>().setUniversityLocation(pos.latitude, pos.longitude);
+        messenger.showSnackBar(
+          SnackBar(content: Text(l10n.locationSaved), backgroundColor: AppColors.emeraldGreenLight),
+        );
+      }
+    } catch (e) {
+      messenger.showSnackBar(
+        SnackBar(content: Text(e.toString()), backgroundColor: AppColors.error),
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final theme = Theme.of(context);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          l10n.requireProofForPoints,
+          style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 8),
+        Card(
+          child: Column(
+            children: [
+              SwitchListTile(
+                secondary: const Icon(Icons.verified_user, color: AppColors.primary),
+                title: Text(l10n.requireProofForPoints),
+                subtitle: Text(l10n.requireProofSubtitle),
+                value: widget.state.isRequireProof,
+                onChanged: (val) {
+                  context.read<SettingsCubit>().setRequireProof(val);
+                },
+              ),
+              const Divider(height: 1),
+              Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    TextField(
+                      controller: _apiKeyController,
+                      obscureText: _isObscured,
+                      decoration: InputDecoration(
+                        labelText: l10n.geminiApiKey,
+                        prefixIcon: const Icon(Icons.key),
+                        border: const OutlineInputBorder(),
+                        suffixIcon: IconButton(
+                          icon: Icon(_isObscured ? Icons.visibility : Icons.visibility_off),
+                          onPressed: () => setState(() => _isObscured = !_isObscured),
+                        ),
+                      ),
+                      onChanged: (val) {
+                        context.read<SettingsCubit>().setGeminiApiKey(val.trim());
+                      },
+                    ),
+                    const SizedBox(height: 10),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: ElevatedButton.icon(
+                            icon: _isTestingKey
+                                ? const SizedBox(
+                                    width: 16,
+                                    height: 16,
+                                    child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                                  )
+                                : const Icon(Icons.check_circle_outline, size: 18),
+                            label: Text(l10n.testKey),
+                            onPressed: _isTestingKey ? null : _testKey,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              const Divider(height: 1),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          l10n.allowedRadius(widget.state.universityRadius),
+                          style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
+                        ),
+                        if (widget.state.universityLat != null)
+                          Text(
+                            '${widget.state.universityLat!.toStringAsFixed(3)}, ${widget.state.universityLng!.toStringAsFixed(3)}',
+                            style: const TextStyle(fontSize: 11, color: Colors.grey),
+                          ),
+                      ],
+                    ),
+                    Slider(
+                      value: widget.state.universityRadius.toDouble().clamp(100.0, 1000.0),
+                      min: 100,
+                      max: 1000,
+                      divisions: 18,
+                      label: '${widget.state.universityRadius}m',
+                      onChanged: (val) {
+                        context.read<SettingsCubit>().setUniversityRadius(val.toInt());
+                      },
+                    ),
+                    ElevatedButton.icon(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.primary.withValues(alpha: 0.1),
+                        foregroundColor: AppColors.primary,
+                        elevation: 0,
+                      ),
+                      icon: const Icon(Icons.my_location, size: 18),
+                      label: Text(l10n.saveUniversityLocation),
+                      onPressed: _saveLocation,
+                    ),
+                  ],
+                ),
+              ),
+              const Divider(height: 1),
+              ListTile(
+                leading: const Icon(Icons.history, color: AppColors.primary),
+                title: Text(l10n.proofLogs),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(builder: (_) => const ProofHistoryScreen()),
+                  );
+                },
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
   }
 }

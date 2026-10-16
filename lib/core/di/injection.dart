@@ -25,6 +25,7 @@ import '../../services/storage_service.dart';
 import '../../services/csv_export_service.dart';
 import '../../services/widget_data_provider.dart';
 import '../../services/mock_data_seeder.dart';
+import '../../services/proof_service.dart';
 
 final GetIt getIt = GetIt.instance;
 
@@ -35,6 +36,14 @@ Future<void> setupDependencies() async {
   getIt.registerLazySingleton<CsvExportService>(() => CsvExportService());
   getIt.registerLazySingleton<WidgetDataProvider>(() => WidgetDataProvider());
   getIt.registerLazySingleton<MockDataSeeder>(() => MockDataSeeder());
+  getIt.registerLazySingleton<ProofService>(
+    () => ProofService(
+      settingsRepository: getIt<SettingsRepository>(),
+      proofLogsBox: Hive.box(AppConstants.proofLogsBox),
+      pendingProofBox: Hive.box(AppConstants.pendingProofBox),
+      gamificationRepository: getIt<GamificationRepository>(),
+    ),
+  );
 
   // Repositories
   getIt.registerLazySingleton<SettingsRepository>(

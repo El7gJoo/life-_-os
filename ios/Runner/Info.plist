@@ -51,6 +51,8 @@
 	<string>Life OS requires access to your photos to select custom background images.</string>
 	<key>NSCameraUsageDescription</key>
 	<string>Life OS requires camera access to capture images for your habits and backgrounds.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Life OS uses your location to verify your university attendance.</string>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>fetch</string>

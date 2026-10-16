@@ -19,6 +19,11 @@ class SettingsCubit extends Cubit<SettingsState> {
           savingsVault: _settingsRepository.getSavingsVault(),
           streakFreezeWeek: _settingsRepository.getStreakFreezeWeek(),
           lastBackupDate: _settingsRepository.getLastBackupDate(),
+          geminiApiKey: _settingsRepository.getGeminiApiKey(),
+          isRequireProof: _settingsRepository.isRequireProofEnabled(),
+          universityLat: _settingsRepository.getUniversityLatitude(),
+          universityLng: _settingsRepository.getUniversityLongitude(),
+          universityRadius: _settingsRepository.getUniversityRadius(),
         ));
 
   void refresh() {
@@ -35,6 +40,11 @@ class SettingsCubit extends Cubit<SettingsState> {
       savingsVault: _settingsRepository.getSavingsVault(),
       streakFreezeWeek: _settingsRepository.getStreakFreezeWeek(),
       lastBackupDate: _settingsRepository.getLastBackupDate(),
+      geminiApiKey: _settingsRepository.getGeminiApiKey(),
+      isRequireProof: _settingsRepository.isRequireProofEnabled(),
+      universityLat: _settingsRepository.getUniversityLatitude(),
+      universityLng: _settingsRepository.getUniversityLongitude(),
+      universityRadius: _settingsRepository.getUniversityRadius(),
     ));
   }
 
@@ -101,5 +111,28 @@ class SettingsCubit extends Cubit<SettingsState> {
   Future<void> setLastBackupDate(DateTime date) async {
     await _settingsRepository.setLastBackupDate(date);
     emit(state.copyWith(lastBackupDate: date));
+  }
+
+  Future<void> setGeminiApiKey(String? key) async {
+    await _settingsRepository.setGeminiApiKey(key);
+    emit(state.copyWith(geminiApiKey: () => key));
+  }
+
+  Future<void> setRequireProof(bool value) async {
+    await _settingsRepository.setRequireProofEnabled(value);
+    emit(state.copyWith(isRequireProof: value));
+  }
+
+  Future<void> setUniversityLocation(double lat, double lng) async {
+    await _settingsRepository.setUniversityLocation(lat, lng);
+    emit(state.copyWith(
+      universityLat: () => lat,
+      universityLng: () => lng,
+    ));
+  }
+
+  Future<void> setUniversityRadius(int radius) async {
+    await _settingsRepository.setUniversityRadius(radius);
+    emit(state.copyWith(universityRadius: radius));
   }
 }
