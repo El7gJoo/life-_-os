@@ -1,4 +1,5 @@
 import 'package:hive_flutter/hive_flutter.dart';
+import '../../../../core/constants/app_constants.dart';
 import '../models/gift_note_model.dart';
 import '../models/occasion_model.dart';
 import 'fiancee_repository.dart';
@@ -90,7 +91,16 @@ class FianceeRepositoryImpl extends FianceeRepository {
   }
 
   @override
+  String? getFianceeName() => _box.get(AppConstants.fianceeNameKey) as String?;
+
+  @override
+  Future<void> setFianceeName(String name) async {
+    await _box.put(AppConstants.fianceeNameKey, name.trim());
+  }
+
+  @override
   Map<String, dynamic> exportAll() => {
+        'fianceeName': getFianceeName(),
         'occasions': getOccasions().map((o) => o.toJson()).toList(),
         'notes': getGiftNotes().map((n) => n.toJson()).toList(),
         'qualityTimeLogs': getQualityTimeLogs().map((q) => q.toIso8601String()).toList(),
@@ -99,6 +109,9 @@ class FianceeRepositoryImpl extends FianceeRepository {
   @override
   Future<void> importAll(Map<String, dynamic> data) async {
     await _box.clear();
+    if (data['fianceeName'] is String) {
+      await setFianceeName(data['fianceeName'] as String);
+    }
     if (data['occasions'] is List) {
       for (final item in data['occasions'] as List) {
         if (item is Map) {

@@ -1939,6 +1939,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Yearly'**
   String get yearly;
+
+  /// No description provided for @fianceeNamePlaceholder.
+  ///
+  /// In en, this message translates to:
+  /// **'My Fiancée'**
+  String get fianceeNamePlaceholder;
+
+  /// No description provided for @editFianceeName.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Fiancée\'s Name'**
+  String get editFianceeName;
+
+  /// No description provided for @enterFianceeName.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter name'**
+  String get enterFianceeName;
+
+  /// No description provided for @fianceeNameUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Name updated successfully'**
+  String get fianceeNameUpdated;
 }
 
 class _AppLocalizationsDelegate

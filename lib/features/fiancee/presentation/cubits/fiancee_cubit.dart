@@ -22,13 +22,20 @@ class FianceeCubit extends Cubit<FianceeState> {
           notes: _fianceeRepository.getGiftNotes(),
           isAuthenticated: false,
           isQualityTimeCompletedToday: false,
+          fianceeName: _fianceeRepository.getFianceeName(),
         ));
 
   void refresh() {
     emit(state.copyWith(
       occasions: _fianceeRepository.getOccasions(),
       notes: _fianceeRepository.getGiftNotes(),
+      fianceeName: () => _fianceeRepository.getFianceeName(),
     ));
+  }
+
+  Future<void> updateFianceeName(String name) async {
+    await _fianceeRepository.setFianceeName(name);
+    emit(state.copyWith(fianceeName: () => name.trim()));
   }
 
   void setAuthenticated(bool authenticated) {

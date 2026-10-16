@@ -20,6 +20,9 @@ abstract class FianceeRepository {
   Future<void> addNote(GiftNoteModel note) => addGiftNote(note);
   Future<void> deleteNote(String id) => deleteGiftNote(id);
 
+  String? getFianceeName();
+  Future<void> setFianceeName(String name);
+
   Map<String, dynamic> exportAll();
   Future<void> importAll(Map<String, dynamic> data);
 }

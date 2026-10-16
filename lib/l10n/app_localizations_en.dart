@@ -1014,4 +1014,16 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get yearly => 'Yearly';
+
+  @override
+  String get fianceeNamePlaceholder => 'My Fiancée';
+
+  @override
+  String get editFianceeName => 'Edit Fiancée\'s Name';
+
+  @override
+  String get enterFianceeName => 'Enter name';
+
+  @override
+  String get fianceeNameUpdated => 'Name updated successfully';
 }

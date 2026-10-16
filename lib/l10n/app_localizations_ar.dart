@@ -1012,4 +1012,16 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get yearly => 'سنوياً';
+
+  @override
+  String get fianceeNamePlaceholder => 'خطيبتي';
+
+  @override
+  String get editFianceeName => 'تعديل اسم الخطيبة';
+
+  @override
+  String get enterFianceeName => 'أدخل الاسم';
+
+  @override
+  String get fianceeNameUpdated => 'تم تحديث الاسم بنجاح';
 }

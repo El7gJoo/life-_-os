@@ -7,12 +7,14 @@ class FianceeState extends Equatable {
   final List<GiftNoteModel> notes;
   final bool isAuthenticated;
   final bool isQualityTimeCompletedToday;
+  final String? fianceeName;
 
   const FianceeState({
     required this.occasions,
     required this.notes,
     required this.isAuthenticated,
     required this.isQualityTimeCompletedToday,
+    this.fianceeName,
   });
 
   FianceeState copyWith({
@@ -20,6 +22,7 @@ class FianceeState extends Equatable {
     List<GiftNoteModel>? notes,
     bool? isAuthenticated,
     bool? isQualityTimeCompletedToday,
+    String? Function()? fianceeName,
   }) {
     return FianceeState(
       occasions: occasions ?? this.occasions,
@@ -27,6 +30,7 @@ class FianceeState extends Equatable {
       isAuthenticated: isAuthenticated ?? this.isAuthenticated,
       isQualityTimeCompletedToday:
           isQualityTimeCompletedToday ?? this.isQualityTimeCompletedToday,
+      fianceeName: fianceeName != null ? fianceeName() : this.fianceeName,
     );
   }
 
@@ -36,5 +40,6 @@ class FianceeState extends Equatable {
         notes,
         isAuthenticated,
         isQualityTimeCompletedToday,
+        fianceeName,
       ];
 }

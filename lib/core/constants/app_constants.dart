@@ -37,6 +37,7 @@ class AppConstants {
   static const String universityLatKey = 'university_latitude';
   static const String universityLngKey = 'university_longitude';
   static const String universityRadiusKey = 'university_radius';
+  static const String fianceeNameKey = 'fiancee_name';
   
   // Defaults
   static const int defaultDayBoundaryHour = 4;

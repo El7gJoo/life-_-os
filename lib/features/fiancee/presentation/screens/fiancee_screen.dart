@@ -67,11 +67,15 @@ class _FianceeScreenState extends State<FianceeScreen> {
       category: CategoryTheme.fiancee,
       child: BlocBuilder<FianceeCubit, FianceeState>(
         builder: (context, state) {
+          final displayName = (state.fianceeName != null && state.fianceeName!.trim().isNotEmpty)
+              ? state.fianceeName!.trim()
+              : l10n.fianceeNamePlaceholder;
+
           if (isBiometricEnabled && !state.isAuthenticated) {
             return Scaffold(
               backgroundColor: Colors.transparent,
               appBar: AppBar(
-                title: Text(l10n.fianceeHub),
+                title: Text(displayName),
                 backgroundColor: Colors.transparent,
                 elevation: 0,
               ),
@@ -95,7 +99,7 @@ class _FianceeScreenState extends State<FianceeScreen> {
                       ),
                       const SizedBox(height: 24),
                       Text(
-                        l10n.fianceeHub,
+                        displayName,
                         style: theme.textTheme.headlineSmall?.copyWith(
                           fontWeight: FontWeight.bold,
                         ),
@@ -134,7 +138,26 @@ class _FianceeScreenState extends State<FianceeScreen> {
           return Scaffold(
             backgroundColor: Colors.transparent,
             appBar: AppBar(
-              title: Text(l10n.fianceeHub),
+              title: InkWell(
+                borderRadius: BorderRadius.circular(8),
+                onTap: () => _showEditNameDialog(context, state.fianceeName ?? ''),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Flexible(
+                        child: Text(
+                          displayName,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      const SizedBox(width: 4),
+                      const Icon(Icons.edit, size: 16),
+                    ],
+                  ),
+                ),
+              ),
               backgroundColor: Colors.transparent,
               elevation: 0,
               actions: [
@@ -153,6 +176,67 @@ class _FianceeScreenState extends State<FianceeScreen> {
             body: ListView(
               padding: const EdgeInsets.all(16),
               children: [
+                // Header profile card with dynamic name & edit action
+                Card(
+                  elevation: 2,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(16),
+                    onTap: () => _showEditNameDialog(context, state.fianceeName ?? ''),
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Row(
+                        children: [
+                          CircleAvatar(
+                            radius: 26,
+                            backgroundColor: AppColors.romanticRoseLight.withValues(alpha: 0.15),
+                            child: const Icon(
+                              Icons.favorite,
+                              color: AppColors.romanticRoseLight,
+                              size: 28,
+                            ),
+                          ),
+                          const SizedBox(width: 14),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    Flexible(
+                                      child: Text(
+                                        displayName,
+                                        style: theme.textTheme.titleMedium?.copyWith(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 18,
+                                        ),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 6),
+                                    const Icon(
+                                      Icons.edit,
+                                      size: 16,
+                                      color: AppColors.romanticRoseLight,
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  l10n.fianceeHub,
+                                  style: theme.textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+
                 // Quality time action card
                 Card(
                   elevation: 3,
@@ -655,6 +739,56 @@ class _FianceeScreenState extends State<FianceeScreen> {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  void _showEditNameDialog(BuildContext context, String currentName) {
+    final l10n = AppLocalizations.of(context);
+    final controller = TextEditingController(text: currentName);
+
+    showDialog(
+      context: context,
+      builder: (dialogCtx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Text(l10n.editFianceeName),
+        content: TextField(
+          controller: controller,
+          autofocus: true,
+          decoration: InputDecoration(
+            labelText: l10n.enterFianceeName,
+            hintText: l10n.fianceeNamePlaceholder,
+            border: const OutlineInputBorder(),
+          ),
+          textCapitalization: TextCapitalization.words,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogCtx).pop(),
+            child: Text(l10n.cancel),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.romanticRoseLight,
+            ),
+            onPressed: () async {
+              final newName = controller.text.trim();
+              await HapticUtils.lightImpact();
+              if (!dialogCtx.mounted) return;
+              await dialogCtx.read<FianceeCubit>().updateFianceeName(newName);
+              if (!dialogCtx.mounted) return;
+              Navigator.of(dialogCtx).pop();
+              if (!context.mounted) return;
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(l10n.fianceeNameUpdated),
+                  duration: const Duration(seconds: 2),
+                ),
+              );
+            },
+            child: Text(l10n.save, style: const TextStyle(color: Colors.white)),
+          ),
+        ],
       ),
     );
   }

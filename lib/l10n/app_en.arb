@@ -341,5 +341,9 @@
   "date": "Date",
   "change": "Change",
   "repeatYearlyDesc": "Auto-renews next year after passing",
-  "yearly": "Yearly"
+  "yearly": "Yearly",
+  "fianceeNamePlaceholder": "My Fiancée",
+  "editFianceeName": "Edit Fiancée's Name",
+  "enterFianceeName": "Enter name",
+  "fianceeNameUpdated": "Name updated successfully"
 }

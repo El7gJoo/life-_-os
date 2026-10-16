@@ -316,5 +316,9 @@
   "date": "التاريخ",
   "change": "تغيير",
   "repeatYearlyDesc": "يتجدد تلقائياً العام القادم بعد انتهائه",
-  "yearly": "سنوياً"
+  "yearly": "سنوياً",
+  "fianceeNamePlaceholder": "خطيبتي",
+  "editFianceeName": "تعديل اسم الخطيبة",
+  "enterFianceeName": "أدخل الاسم",
+  "fianceeNameUpdated": "تم تحديث الاسم بنجاح"
 }
