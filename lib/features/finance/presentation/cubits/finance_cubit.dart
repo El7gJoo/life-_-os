@@ -22,6 +22,8 @@ class FinanceCubit extends Cubit<FinanceState> {
           totalSpentToday: 0.0,
           remainingPocket: 0.0,
           currency: _settingsRepository.getCurrency(),
+          weeklyBudget: _settingsRepository.getWeeklyBudget(),
+          monthlyBudget: _settingsRepository.getMonthlyBudget(),
         )) {
     _recalculate();
   }
@@ -32,6 +34,28 @@ class FinanceCubit extends Cubit<FinanceState> {
     final dayBoundary = _settingsRepository.getDayBoundaryHour();
     final totalSpent = _financeRepository.getTotalSpentToday(dayBoundary);
     final remaining = starting - totalSpent;
+    final weeklyBudget = _settingsRepository.getWeeklyBudget();
+    final monthlyBudget = _settingsRepository.getMonthlyBudget();
+
+    final now = DateTime.now();
+    final startOfWeek = now.subtract(Duration(days: now.weekday - 1));
+    final weekStart = DateTime(startOfWeek.year, startOfWeek.month, startOfWeek.day);
+    final weekEnd = weekStart.add(const Duration(days: 7));
+
+    final weeklyExpenses = _financeRepository.getExpensesForDateRange(weekStart, weekEnd);
+    final weeklySpent = weeklyExpenses.fold(0.0, (sum, e) => sum + e.amount);
+
+    final monthlyExpenses = _financeRepository.getExpensesForMonth(now.year, now.month);
+    final monthlySpent = monthlyExpenses.fold(0.0, (sum, e) => sum + e.amount);
+
+    String? alert;
+    if (weeklyBudget > 0 && weeklySpent >= weeklyBudget * 0.8) {
+      final pct = ((weeklySpent / weeklyBudget) * 100).round();
+      alert = 'You have used $pct% of your weekly budget';
+    } else if (monthlyBudget > 0 && monthlySpent >= monthlyBudget * 0.8) {
+      final pct = ((monthlySpent / monthlyBudget) * 100).round();
+      alert = 'You have used $pct% of your monthly budget';
+    }
 
     emit(state.copyWith(
       expenses: expenses,
@@ -39,6 +63,11 @@ class FinanceCubit extends Cubit<FinanceState> {
       totalSpentToday: totalSpent,
       remainingPocket: remaining,
       currency: _settingsRepository.getCurrency(),
+      weeklyBudget: weeklyBudget,
+      monthlyBudget: monthlyBudget,
+      weeklySpent: weeklySpent,
+      monthlySpent: monthlySpent,
+      budgetAlert: alert,
     ));
   }
 
@@ -54,6 +83,16 @@ class FinanceCubit extends Cubit<FinanceState> {
 
   Future<void> updateStartingBalance(double balance) async {
     await _settingsRepository.setStartingBalance(balance);
+    _recalculate();
+  }
+
+  Future<void> setWeeklyBudget(double budget) async {
+    await _settingsRepository.setWeeklyBudget(budget);
+    _recalculate();
+  }
+
+  Future<void> setMonthlyBudget(double budget) async {
+    await _settingsRepository.setMonthlyBudget(budget);
     _recalculate();
   }
 
