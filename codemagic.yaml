@@ -20,9 +20,6 @@ workflows:
           flutter test --no-pub
       - name: Build Unsigned iOS Release
         script: |
-          cd ios
-          pod install
-          cd ..
           flutter build ios --release --no-codesign
       - name: Package Payload into Unsigned IPA
         script: |
